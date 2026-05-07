@@ -397,6 +397,7 @@ Choose Network Load Balancer	Select ingress ELB
 
 Save record.
 ```
+
 ## Procedure 2:
 ### Create a CNAME record in GoDaddy hostname mapped to the Load Balancer DNS name created by the ingress controller.
 
@@ -416,6 +417,11 @@ Name: kopsvprofile
 Value : Loadbalancer DNS Name Paste here
 Save the Record
 ```
+check it in browser
+
+http://kopsvprofile.xyz  --> After configuring DNS and the Ingress controller correctly, open your browser and access the application using:
+
+If everything is set up properly (Ingress, Load Balancer, and DNS record), the VProfile application homepage will be displayed successfully in the browser.
 
 
 ## Step 25: Access Application
