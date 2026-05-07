@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vprodb
+  labels:
+    app: vprodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vprodb
+  template:
+    metadata:
+      labels:
+        app: vprodb
+    spec:
+      initContainers:
+        - name: busybox
+          image: busybox:latest
+          args: ["rm", "-rf", "/var/lib/mysql/lost+found"]
+          volumeMounts:
+            - name: vpro-db-data
+              mountPath: /var/lib/mysql
+      containers:
+        - name: vprodb
+          image: vprocontainers/vprofiledb
+          volumeMounts:
+            - name: vpro-db-data
+              mountPath: /var/lib/mysql
+          ports:
+            - name: vprodb-port
+              containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: db-pass
+      volumes:
+        - name: vpro-db-data
+          persistentVolumeClaim:
+            claimName: db-pv-claim
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vprodb
+spec:
+  ports:
+  - port: 3306
+    targetPort: vprodb-port
+    protocol: TCP
+  selector:
+    app: vprodb
+  type: ClusterIP
