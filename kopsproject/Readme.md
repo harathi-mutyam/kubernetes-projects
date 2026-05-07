@@ -322,7 +322,7 @@ Find explanation here
 
 rules:
 
-- host: kopsvprofile.ehmutyam.xyz
+- host: kopsvprofile.ehmutyam.xyz    (R53 Hosted Zone name)
   
 **Replace It With Your Domain**
 
@@ -372,15 +372,52 @@ Check the hostname and address mapping for the ingress controller.
 kubectl get ingress
 kubectl describe ingress vpro-ingress
 ```
-## Create a CNAME record in GoDaddy hostname mapped to the Load Balancer DNS name created by the ingress controller.
+# doubt here
+
+## Proecure 1: 
+
+### Step 1: Open Route 53 Hosted Zone  -->
+
+Go to:**AWS Console → Route 53 → Hosted Zones**
+
+Open:  **kopsvprofile.ehmutyam.xyz**
+
+### Step 2: Create Record in Route 53
+
+Click: **Create Record**
+
+```shell
+Field	Value
+Record Name	(leave empty)
+Record Type	A
+Alias	ON
+Route Traffic To	Alias to Network Load Balancer
+Choose Region : us-east-1 (your cluster region)
+Choose Network Load Balancer	Select ingress ELB
+
+Save record.
+```
+## Procedure 2:
+### Create a CNAME record in GoDaddy hostname mapped to the Load Balancer DNS name created by the ingress controller.
 
 go to go daddy.com  --> Click on your Domain (ehmutyam.xyz) --> Domain --> DNS --> Add New Record 
 ```shell
 Type: CNAME
 Name: kopsvprofile
+
+#if you give name same as in ingress.yaml file i am getting error.
+
+#If i change it here to vprofile and changed in ingress.yaml host: vprofile.ehmutyam.xyz.save it.Run the
+#kubectl delete -f ingress.yaml
+#kubectl apply -f ingress.yaml
+#and reapply it wait for 3 minutes.It will reflect dns name name.but trying to run in a browser getting error
+#application is not working
+
 Value : Loadbalancer DNS Name Paste here
 Save the Record
 ```
+
+
 ## Step 25: Access Application
 
 **Check with the DNS name of the Load Balancer in Browser**, you will get 404 for nginx controller
