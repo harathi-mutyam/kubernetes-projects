@@ -304,6 +304,25 @@ cd kopsproject
 ls
 cd kubedefs
 cd k8smanifests
+ls
+vim ingress.yaml   #Notes: Update the Ingress Host with Your Route 53 Domain
+```
+
+rules:
+
+- host: kopsvprofile.ehmutyam.xyz
+  
+**Replace It With Your Domain**
+
+**Example:**
+
+rules:
+
+- host: app.example.com
+
+Depending on the DNS name you created in Route 53.
+  
+```shell
 cat dbpvc.yaml
 ```
 **create an EBS volume with dbpvc.yaml**
