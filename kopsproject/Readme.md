@@ -194,7 +194,15 @@ Login to your GoDaddy account and create 4 NS records for the name servers of th
 
 Copy 4 NS records from Route53.
 
-Go to GoDaddy:   Domains → DNS   -->  Add all 4 NS records.
+Go to GoDaddy:   Domains → DNS   -->  Add a new Reocrd
+
+Type: NS
+
+Name: kopsvprofile
+
+value: ns-95.awsdns-11.com.  #paste ns record of R53 Value here
+
+do the same procedure for remiaing 3 records also
 
 Wait:
 
