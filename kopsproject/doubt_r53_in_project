@@ -1,0 +1,73 @@
+Doubt related to R53 
+
+How to Solve “Record name conflicts with another record”
+
+You got this error because:
+
+kopsvprofile
+
+already exists as an NS record in GoDaddy, and DNS does not allow the same name to also be a CNAME.
+
+Solution Options
+Option 1 — Recommended (Use Route 53)
+
+Since you already created NS delegation for:
+
+kopsvprofile.ehmutyam.xyz
+
+do this:
+
+Step 1: Do NOT Create CNAME in GoDaddy
+
+Delete or ignore the CNAME creation in GoDaddy.
+
+Keep only the 4 NS records there.
+
+Example in GoDaddy:
+
+Type	Name
+NS	kopsvprofile
+
+Only NS records should exist.
+
+Step 2: Open Route 53 Hosted Zone
+
+Go to:
+
+AWS Console → Route 53 → Hosted Zones
+
+Open:
+
+kopsvprofile.ehmutyam.xyz
+Step 3: Create Record in Route 53
+
+Click:
+
+Create Record
+
+Create:
+
+Field	Value
+Record Name	(leave empty)
+Record Type	A
+Alias	ON
+Route Traffic To	Alias to Application Load Balancer
+Choose Load Balancer	Select ingress ELB
+
+Save record.
+
+Step 4: Verify Ingress ELB
+
+Run:
+
+kubectl get ingress
+
+Example:
+
+NAME           HOSTS
+vpro-ingress   kopsvprofile.ehmutyam.xyz
+Step 5: Test
+
+Open browser:
+
+http://kopsvprofile.ehmutyam.xyz
