@@ -307,6 +307,9 @@ cd k8smanifests
 ls
 vim ingress.yaml   #Notes: Update the Ingress Host with Your Route 53 Domain
 ```
+#### Open ingress.yaml file change the host Depending on the DNS name you created in Route 53.
+
+Find explanation here
 
 rules:
 
@@ -320,7 +323,6 @@ rules:
 
 - host: app.example.com
 
-Depending on the DNS name you created in Route 53.
   
 ```shell
 cat dbpvc.yaml
