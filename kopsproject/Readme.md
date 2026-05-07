@@ -180,7 +180,7 @@ AWS → Route53 → Hosted Zones
 
 Create domain:
 
-kopskubvprofile.yourdomain.com   (Example: **kopskubvprofile.ehmutyam.xyz**)
+kopsvprofile.yourdomain.com   (Example: **kopsvprofile.ehmutyam.xyz**)
 
 Choose:  **Public Hosted Zone**
 
@@ -205,13 +205,13 @@ Wait:
 ## Step 17: Create kops cluster from kops ec2 instance:
 ```shell
 kops create cluster \
---name=kopskubvprofile.ehmutyam.xyz \
+--name=kopsvprofile.ehmutyam.xyz \
 --state=s3://kopsstatebkt7526 \
 --zones=us-east-1a,us-east-1b \
 --node-count=2 \
 --node-size=c7i-flex.large \
 --control-plane-size=c7i-flex.large \
---dns-zone=kopskubvprofile.ehmutyam.xyz \
+--dns-zone=kopsvprofile.ehmutyam.xyz \
 --node-volume-size=12 \
 --control-plane-volume-size=12 \
 --ssh-public-key ~/.ssh/id_rsa.pub
@@ -227,12 +227,12 @@ change node-size and control-plane-size from **t3.smal to lc7i-flex.large**
 ## Step 18: Apply Cluster
 ```shell
 kops update cluster \
---name kopskubvprofile.ehmutyam.xyz \
+--name kopsvprofile.ehmutyam.xyz \
 --state=s3://kopsstatebkt7526 \
 --yes --admin
 ```
 
-Replace kopskubvprofile.ehmutyam.xyz with your kubeprofile.yourdomain.com
+Replace kopsvprofile.ehmutyam.xyz with your kubeprofile.yourdomain.com
 
 ⏳ **Wait 10–15 minutes.**
 
@@ -240,7 +240,7 @@ Replace kopskubvprofile.ehmutyam.xyz with your kubeprofile.yourdomain.com
 ## Step 19: Validate Cluster
 ```shell
 kops validate cluster \
---name=kopskubvprofile.ehmutyam.xyz \
+--name=kopsvprofile.ehmutyam.xyz \
 --state=s3://kopsstatebkt7526
 ```
 **Check nodes:**
@@ -267,12 +267,13 @@ kubectl get nodes
 ```
 ## Step 20: Clone Repository
 ```shell
-git clone https://github.com/harathi-mutyam/vprokube.git
+git clone https://github.com/harathi-mutyam/kubernetes-projects.git
 
 ```
 Check files:
 ```shell
 ls
+
 ```
 
 
@@ -295,11 +296,14 @@ kubectl get nodes
 ```
 **Create an EBS volume for DB deployment**:
 
-Changed to the kubedefs folder inside the repository and observe an EBS volume with dbpvc.yaml definition file.  
+Changed to the kopsproject folder,changed to k8smanifests,  inside the repository and observe an EBS volume with dbpvc.yaml definition file.  
 ```shell
-cd vprokube
+
+cd kopsproject
+
 ls
 cd kubedefs
+cd k8smanifests
 cat dbpvc.yaml
 ```
 **create an EBS volume with dbpvc.yaml**
@@ -343,7 +347,7 @@ kubectl describe ingress vpro-ingress
 go to go daddy.com  --> Click on your Domain (ehmutyam.xyz) --> Domain --> DNS --> Add New Record 
 ```shell
 Type: CNAME
-Name: kopskubvprofile
+Name: kopsvprofile
 Value : Loadbalancer DNS Name Paste here
 Save the Record
 ```
@@ -384,7 +388,7 @@ kubectl delete -f .  #Delete Application
  **Delete Cluster**
 ```shell
 kops delete cluster \
---name=kopskubvprofile.ehmutyam.xyz \
+--name=kopsvprofile.ehmutyam.xyz \
 --state=s3://kopsstatebkt7526 \
 --yes
 ```
