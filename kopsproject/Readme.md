@@ -306,6 +306,7 @@ kubectl get nodes
 
 Changed to the kopsproject folder,changed to k8smanifests,  inside the repository and observe an EBS volume with dbpvc.yaml definition file.  
 ```shell
+cd kubernetes-projects
 
 cd kopsproject
 
