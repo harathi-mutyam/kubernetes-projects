@@ -471,6 +471,9 @@ kops delete cluster \
 
 **Delete manually:**
 	Delete the hosted zone in route 53
+	
 	Delete the created records 4 NS and 1 CNAME record in domain registrar.
+	
 	Delete the s3 bucket created to store the kops state.
+	
 	Terminate the Kops instance if not required.
