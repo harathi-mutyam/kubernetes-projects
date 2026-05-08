@@ -1,5 +1,25 @@
 # Production-Grade AWS EKS Deployment(Terraform) Voting App 
 
+A simple distributed application running across multiple Docker containers.
+
+## Architecture
+
+![Architecture diagram](architecture.excalidraw.png)
+
+* A front-end web app in [Python](/vote) which lets you vote between two options
+* A [Redis](https://hub.docker.com/_/redis/) which collects new votes
+* A [.NET](/worker/) worker which consumes votes and stores them in…
+* A [Postgres](https://hub.docker.com/_/postgres/) database backed by a Docker volume
+* A [Node.js](/result) web app which shows the results of the voting in real time
+
+## Notes
+
+The voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client.
+
+This isn't an example of a properly architected perfectly designed distributed app... it's just a simple
+example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to
+deal with them in Docker at a basic level.
+
 ## Prerequisites Setup for This Repository 
 ```shell
 - AWS Load Balancer Controller (ALB)
@@ -473,24 +493,14 @@ run this command in vs code gitbash
 ```shell
 terraform destroy -var-file="dev.tfvars"
 ```
+**Step 3: Manual Cleanup Steps**
+After destroying the infrastructure using Terraform, manually remove the remaining AWS and DNS resources to avoid unnecessary charges and unused configurations.
 
-A simple distributed application running across multiple Docker containers.
+Delete Route53 Hosted Zone
 
+Remove Route53 Nameservers from Domain Registrar (GoDaddy).If you followed Approach 1 (Route53 Nameserver Integration):
 
-## Architecture
+Delete DNS Records from GoDaddy (If Approach 2 Was Used)
 
-![Architecture diagram](architecture.excalidraw.png)
+Delete S3 Bucket Used for Terraform State: First Empty the bucket later delete it
 
-* A front-end web app in [Python](/vote) which lets you vote between two options
-* A [Redis](https://hub.docker.com/_/redis/) which collects new votes
-* A [.NET](/worker/) worker which consumes votes and stores them in…
-* A [Postgres](https://hub.docker.com/_/postgres/) database backed by a Docker volume
-* A [Node.js](/result) web app which shows the results of the voting in real time
-
-## Notes
-
-The voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client.
-
-This isn't an example of a properly architected perfectly designed distributed app... it's just a simple
-example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to
-deal with them in Docker at a basic level.
