@@ -339,7 +339,7 @@ Wait 5–20 minutes for propagation
 Field	        Value
 Record name	  vprofile
 Type	        CNAME
-Value	        AWS NLB DNS
+Value	        paste AWS NLB DNS here (k8s-ingressn-ingressn-8323e226e2-5ba3e83ade90991f.elb.us-east-1.amazonaws.com)
 TTL         	300
 ```
 #### Step 5: Access Application
