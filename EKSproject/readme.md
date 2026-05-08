@@ -376,7 +376,7 @@ kubectl get svc -A
 #Check ingress controller service
 kubectl get svc -n ingress-nginx
 ```
-## Step 12: Deletion Process
+## Step 12: Deletion Process in Gitbash
 ```shell
 kubectl delete svc ingress-nginx-controller -n ingress-nginx
 
@@ -392,7 +392,9 @@ from VS Code deletes all infrastructure created by Terraform
 ```shell
 terraform destroy -var-file="dev.tfvars"
 ```
-**Delete manually**: 
+## Manual Cleanup Steps
+
+After destroying the infrastructure using Terraform, manually remove the remaining AWS and DNS resources to avoid unnecessary charges and unused configurations.
 
 1. Delete Route53 Hosted Zone
 2. Remove Route53 Nameservers from Domain Registrar (GoDaddy).If you followed Approach 1 (Route53 Nameserver Integration):
