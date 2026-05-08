@@ -398,9 +398,9 @@ Choose Network Load Balancer	Select ingress ELB
 
 Save record.
 ```
-
-```shell
 ## Procedure 2:
+```shell
+
 ### Create a CNAME record in GoDaddy hostname mapped to the Load Balancer DNS name created by the ingress controller.
 
 go to go daddy.com  --> Click on your Domain (ehmutyam.xyz) --> Domain --> DNS --> Add New Record 
