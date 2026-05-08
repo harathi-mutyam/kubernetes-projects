@@ -452,7 +452,7 @@ https://(ALB-DNS)/products   --->products
 ```
 Notes: ALB path-based routing  From your ALB rules: /product → product target group  ,/cart → cart target group ,/ → payments (default)
 
-## **18. Host-Based Routing Setup:**
+# 18. Host-Based Routing Setup:
 ```shell
 vim hostbased-ingress.yaml  # replace acm certicate arn with your certificate arn
 ```
@@ -489,38 +489,38 @@ e-commerce-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehm
 
 
 
-## **19. Connect Domain → ALB using Route 53**
+## 19.Connect Domain → ALB using Route 53 (Host-Based Routing)
 
-## Follow either procedure 1 or procedure 2
+## You can use either either procedure 1((Recommended for AWS-native setup) or procedure 2(GoDaddy-managed DNS).
 
-# Procedure 1:
-**Step 1: Open Hosted Zone**
+# PROCEDURE 1 (Recommended – Route 53 Managed DNS)
+
+### **Step 1: Open Hosted Zone**
 
 Now go to Route53--> Hosted Zone → ehmutyam.xyz
 
 **Step 2: Create A Records (Alias → ALB)**
 
 Create records: For EACH subdomain:
-1. cart.ehmutyam.xyz
+1. **cart.ehmutyam.xyz**
 
-REcord Name: cart 
-Record Type: A record
+REcord Name: **cart **
+Record Type: **A record**
 
-Enable: Alias = YES
+Enable: Alias = **YES**
 
-Route Traffic to : select Alias to Application and Classic Load Balancer
+Route Traffic to : **select Alias to Application and Classic Load Balancer**
 
 select region of your ALB : US East(N. Virginia)
-select your ALB here  (for example: dualstack.k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com)
+select **your ALB DNS here** (for example: dualstack.k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com)
 
-2. product.ehmutyam.xyz
+2. **product.ehmutyam.xyz**
 
 REcord name: product 
 
-
 same foloow here also
 
-3. payments.ehmutyam.xyz
+3. **payments.ehmutyam.xyz**
 
 REcord name: payments
 
@@ -535,24 +535,30 @@ https:product.ehmutyam.xyz → Product Service
 
 https:payments.ehmutyam.xyz → Payments Service
 
-# Procedure2
+# PROCEDURE 2 (GoDaddy CNAME Method)
+Use this ONLY if you are NOT using Route 53 NS delegation. 
+## Step 1: Remove Route 53 NS Setup
+
 ```shell
-Remove NS records of R53 in Godaddy.com add CNAME records
+Remove NS records of R53 in Godaddy.com ADD CNAME records
 
 use default ns records of godaddy.com 
 
-👉 DELETE ALL NS records if you have added in the first process for R53 Ns Records
+DELETE ALL NS records if you have added in the first process for R53 Ns Records
 
 ⚠️ No NS records needed at all.
 ```
 
-### create CNAME records in godaddy.com for https purpose 
+## Step 2: Create CNAME records in godaddy.com for https purpose 
+
+DNS Management → Add Record
+
 ```shell
-type: CNAME       Name: cart          Data: alb DNS name 
+type: CNAME       Name: cart          Data Value: alb DNS name 
 
-type: CNAME       Name: product       Data: alb DNS name 
+type: CNAME       Name: product       Data Value: alb DNS name 
 
-type: CNAME       Name: payments      Data: alb DNS name 
+type: CNAME       Name: payments      Data Value: alb DNS name 
 ```
 Example:
 
@@ -584,22 +590,6 @@ run this command in vs code gitbash
 ```shell
 terraform destroy -var-file="dev.tfvars"
 ```
-
-# Note
-
-GoDaddy is only: domain registar
-
-You either:
-
-Option A:
-**point NS records to Route53**   then add A records in R53
-
-OR
-
-Option B:
-**directly add CNAME records with ALB DNS**
-
-
 # **Note**: **Difference between path based and host based routing**
 
 ## Why cart.yaml was modified (Path-based → Host-based Routing)
