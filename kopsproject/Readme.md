@@ -314,24 +314,25 @@ ls
 cd kubedefs
 cd k8smanifests
 ls
-vim ingress.yaml   #Notes: Update the Ingress Host with Your Route 53 Domain
+vim ingress.yaml   #Notes: Update the Ingress Host with Your Route 53 hosted zone name Domain
 ```
-#### Open ingress.yaml file change the host Depending on the DNS name you created in Route 53.
+#### Open ingress.yaml file change the host 
+Ingress host name MUST exactly match R53 Hosted Zone Name (DNS name)
 
-Find explanation here
+Depending on the DNS name you created in Route 53.
+
+Example:
+
+host: kopsvprofile.ehmutyam.xyz   #(R53 Hosted Zone name)
+
+Then DNS must also be:
+
+kopsvprofile.ehmutyam.xyz
 
 rules:
 
 - host: kopsvprofile.ehmutyam.xyz    (R53 Hosted Zone name)
   
-**Replace It With Your Domain**
-
-**Example:**
-
-rules:
-
-- host: app.example.com
-
   
 ```shell
 cat dbpvc.yaml
@@ -372,11 +373,11 @@ Check the hostname and address mapping for the ingress controller.
 kubectl get ingress
 kubectl describe ingress vpro-ingress
 ```
-# doubt here
+# Mapping Approches: 
 
 ## Proecure 1: 
 
-### Step 1: Open Route 53 Hosted Zone  -->
+### Step 1: Open Route 53 Hosted Zone 
 
 Go to:**AWS Console → Route 53 → Hosted Zones**
 
@@ -387,10 +388,10 @@ Open:  **kopsvprofile.ehmutyam.xyz**
 Click: **Create Record**
 
 ```shell
-Field	Value
-Record Name	(leave empty)
-Record Type	A
-Alias	ON
+Field	            Value
+Record Name	     (leave empty)
+Record Type           A
+Alias	             ON
 Route Traffic To	Alias to Network Load Balancer
 Choose Region : us-east-1 (your cluster region)
 Choose Network Load Balancer	Select ingress ELB
@@ -398,11 +399,12 @@ Choose Network Load Balancer	Select ingress ELB
 Save record.
 ```
 
+```shell
 ## Procedure 2:
 ### Create a CNAME record in GoDaddy hostname mapped to the Load Balancer DNS name created by the ingress controller.
 
 go to go daddy.com  --> Click on your Domain (ehmutyam.xyz) --> Domain --> DNS --> Add New Record 
-```shell
+
 Type: CNAME
 Name: kopsvprofile
 
@@ -417,7 +419,8 @@ Name: kopsvprofile
 Value : Loadbalancer DNS Name Paste here
 Save the Record
 ```
-check it in browser
+
+check it in browser after follow the procedure 1
 
 http://kopsvprofile.xyz  --> After configuring DNS and the Ingress controller correctly, open your browser and access the application using:
 
