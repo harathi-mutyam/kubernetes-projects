@@ -238,7 +238,7 @@ cat dbpvc.yaml
 ```shell
 vim dbpvc.yaml
 ```
-Change  in yaml file storageClassName: gp2  
+Change  in yaml file storageClassName: gp2  if it is default
 #### Update Ingress file
 
 ```shell
@@ -337,7 +337,7 @@ Type	        CNAME
 Value	        AWS NLB DNS
 TTL         	300
 ```
-### Step 5: Access Application
+#### Step 5: Access Application
   http://vprofile.ehmutyam.xyz
   
 
@@ -392,5 +392,14 @@ from VS Code deletes all infrastructure created by Terraform
 ```shell
 terraform destroy -var-file="dev.tfvars"
 ```
+**Delete manually**: 
 
+1. Delete Route53 Hosted Zone
+2. Remove Route53 Nameservers from Domain Registrar (GoDaddy).If you followed Approach 1 (Route53 Nameserver Integration):
+3. Delete DNS Records from GoDaddy (If Approach 2 Was Used)
+4. Delete S3 Bucket Used for Terraform State: First Empty the bucket later delete it
+
+
+
+Delete the s3 bucket created to store the kops state. 
 
