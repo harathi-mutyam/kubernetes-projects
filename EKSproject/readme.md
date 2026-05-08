@@ -50,6 +50,7 @@ AWS CLI Installed
 Git Installed
 VS Code / Git Bash
 ```
+# Phase 1
 ## **Steps to Clone and Run the Project in VS code**
 
 ### **1. Create a Local Working Directory (Optional)** 
@@ -168,7 +169,7 @@ After resource creation completes, verify in the AWS Console that the bastion se
 
 The process usually takes 10–15 minutes. Then copy the bastion server’s public IP address and launch a new Git Bash session.
 
-# Post-Provisioning Setup (Inside Bastion Host)
+# Phase 2 Post-Provisioning Setup (Inside Bastion Host)
 After Terraform completes:
 
 # AWS SETUP
@@ -180,7 +181,7 @@ From your laptop terminal:
 ssh -i Downloads/kopskey.pem ubuntu@PUBLIC-IP
 ```
 🚀 PHASE 3 — INSTALL REQUIRED TOOLS
-## Step 8: Install AWS CLI
+## Step 2: Install AWS CLI
 ```shel
 snap install aws-cli --classic
 ```
@@ -188,7 +189,7 @@ Check:
 ```shell
 aws --version
 ```
-## Step 9: Configure AWS access keys and secret keys
+## Step 3: Configure AWS access keys and secret keys
 ```shell
 aws configure
 
@@ -202,13 +203,13 @@ Region: us-east-1
 
 Output:  json
 ```
-## Step 10:Connect kubectl to EKS Cluster
+## Step 4: Connect kubectl to EKS Cluster
 ```shell
 aws eks update-kubeconfig --region us-east-1 --name dev-eks-demo
 #Verify cluster connection
 kubectl get nodes
 ```
-## Step 11: Install NGINX Ingress Controller on EKS
+## Step 5: Install NGINX Ingress Controller on EKS
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
 ```
@@ -217,7 +218,7 @@ This command tells AWS:“Create a public (internet-facing) Network Load Balance
 ```shell
 kubectl annotate svc ingress-nginx-controller -n ingress-nginx service.beta.kubernetes.io/aws-load-balancer-scheme=internet-facing --overwrite
 ```
-## Step 11:  Clone Project from GitHub
+## Step 6:  Clone Project from GitHub
 ```shell
 git clone https://github.com/harathi-mutyam/kubernetes-projects.git
 ```
@@ -288,7 +289,8 @@ curl http://vprofile.ehmutyam.xyz
 dig vprofile.ehmutyam.xyz
 
 ```
-## Step 12: DNS Configuration Approaches
+
+# Phase 3: DNS Configuration Approaches
 
   ### 1. **Application Access Architecture**
      ```shell
@@ -365,7 +367,7 @@ TTL	     1 Hour
   http://vprofile.ehmutyam.xyz
 
 
-
+# Phase 4
 ##### Debugging Commands optional
 
 ```shell
@@ -376,7 +378,8 @@ kubectl get svc -A
 #Check ingress controller service
 kubectl get svc -n ingress-nginx
 ```
-## Step 13: Kubernetes Resource Cleanup (Deletion Process in Gitbash bastion server)
+# Phase 5: Deletion Process
+## Step1 : Kubernetes Resource Cleanup (Deletion Process in Gitbash bastion server)
 ```shell
 kubectl delete svc ingress-nginx-controller -n ingress-nginx
 
@@ -387,12 +390,12 @@ kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/con
 kubectl delete -f .
 ```
 
-## Step 14: Destroy Terraform Infrastructure
+## Step 2: Destroy Terraform Infrastructure
 from VS Code deletes all infrastructure created by Terraform
 ```shell
 terraform destroy -var-file="dev.tfvars"
 ```
-## Manual Cleanup Steps
+## Step 3: Manual Cleanup Steps
 
 After destroying the infrastructure using Terraform, manually remove the remaining AWS and DNS resources to avoid unnecessary charges and unused configurations.
 
@@ -401,7 +404,4 @@ After destroying the infrastructure using Terraform, manually remove the remaini
 3. Delete DNS Records from GoDaddy (If Approach 2 Was Used)
 4. Delete S3 Bucket Used for Terraform State: First Empty the bucket later delete it
 
-
-
-Delete the s3 bucket created to store the kops state. 
 
