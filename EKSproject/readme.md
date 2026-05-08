@@ -1,18 +1,14 @@
-# **Production-Grade AWS EKS Deployment with ALB, TLS & Route53 (Terraform Automated)**
+# **Production-Grade AWS EKS Deployment with NGINX, Route53 (Terraform Automated)**
 
 ## 📌 Overview
 
 This project provisions a production-ready private Amazon EKS cluster using Infrastructure as Code (Terraform) and deploys microservices using Kubernetes with:
 
-- AWS Load Balancer Controller (ALB)
+- AWS Nginx network load Controller
 
 - Kubernetes Ingress
 
-- TLS termination using ACM
-
 - Route53 DNS configuration
-
-- Host-based routing
 
 - Bastion host for secure access
 
@@ -22,13 +18,9 @@ The entire infrastructure layer is automated using Terraform.
 Core AWS Services Used
 - Amazon Web Services
 - Amazon EKS
-- AWS Application Load Balancer
+- AWS Network Load Balancer
 - Amazon Route 53
-- AWS Certificate Manager
 
-<img src="./images/vpc.png">
-<img src="./images/eks.png">
-<img src="./images/k8s.png">
 
 ## Infrastructure Provisioned with Terraform
 ### Networking (Custom VPC)
@@ -66,7 +58,6 @@ Private Subnet:
 Used for:
 - Secure SSH access
 - Kubectl access to private cluster
-- Helm installation
 - Controller installation
 
 **Steps to Clone and Run the Project**
@@ -79,7 +70,7 @@ Create a folder in your local directory named production-eks.
 
 Open VS Code (or Git Bash) and clone the repository:
 
-git clone https://github.com/harathi-mutyam/PRODUCTION-EKS.git
+git clone https://github.com/harathi-mutyam/kubernetes-projects.git
 
 **3. After Cloning the Repository**
 
@@ -92,13 +83,23 @@ Example:
 region = "us-east-1"
 
 Ensure the region in backend.tf matches the region where your Terraform state storage (for example, an S3 bucket) is hosted.
+Create s3 bucket in your region through command or manually
 
+ aws s3 mb s3://eksprojectstatebkt8526 --region us-east-1
+ enable versioning also
+
+ change bucketname and region in backend.tf 
+ 
 **4. Navigate to the Terraform Directory**
 
 Always run Terraform commands from the folder where main.tf exists:
-
-cd eks-project/terraform/eks
-
+```shell
+cd kubernetes-projects
+ls
+cd EKSproject
+cd terraform
+cd EKS
+```
 **5. Verify Terraform Installation**
 
 terraform version
@@ -123,127 +124,226 @@ terraform apply -var-file="dev.tfvars"
 ## Post-Provisioning Setup (Inside Bastion Host)
 After Terraform completes:
 
-#### Step 1: Configure AWS CLI
+# AWS SETUP
+## Step 1: Login to Bastion EC2 Instance through gitbash
+
+From your laptop terminal:
+
+```shell
+ssh -i Downloads/kopskey.pem ubuntu@PUBLIC-IP
 ```
+🚀 PHASE 3 — INSTALL REQUIRED TOOLS
+## Step 8: Install AWS CLI
+```shel
+snap install aws-cli --classic
+```
+Check:
+```shell
+aws --version
+```
+## Step 9: Configure AWS access keys and secret keys
+```shell
 aws configure
+
+Enter:
+
+Access Key  : paste your access key
+
+Secret Key :  paste your secret key
+
+Region: us-east-1
+
+Output:  json
 ```
-Verify cluster:
-```
-aws eks update-kubeconfig --region <region> --name <cluster-name>
+## Step 10:Connect kubectl to EKS Cluster
+```shell
+aws eks update-kubeconfig --region us-east-1 --name dev-eks-demo
+#Verify cluster connection
 kubectl get nodes
 ```
+## Step 11: Install NGINX Ingress Controller on EKS
+```shell
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
+```
+## Expose Ingress Controller using AWS Load Balancer
+This command tells AWS:“Create a public (internet-facing) Network Load Balancer (NLB) for this service”
+```shell
+kubectl annotate svc ingress-nginx-controller -n ingress-nginx service.beta.kubernetes.io/aws-load-balancer-scheme=internet-facing --overwrite
+```
+## Step 11:  Clone Project from GitHub
+```shell
+git clone https://github.com/harathi-mutyam/kubernetes-projects.git
+```
+#### Navigate into project
+```shell
+cd kubernetes-projects
+ls
+cd EKSproject
+cd k8s
+ls
+```
+#### Check PVC file
+```shell
+cat dbpvc.yaml
+```
+#### Update Storage Class
 
-#### Step 2: Install Helm
-```bash
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
+```shell
+vim dbpvc.yaml
+```
+Change  in yaml file storageClassName: gp2  
+#### Update Ingress file
+
+```shell
+vim ingress.yaml
+```
+Replace in yaml file 
+hostname: vprofile.ehmutyam.xyz   (replace with your Domain Name)
+
+Ensure ingress class must be nginx
+
+ingressClassName: nginx
+
+#### first apply Storage (PVC)
+```shell
+kubectl apply -f dbpvc.yaml
+```
+Database (MySQL) needs storage
+
+PVC must exist before Pod starts
+
+Otherwise MySQL pod will fail or stay in Pending
+
+#### Then Apply all other manifests
+```shell
+kubectl apply -f .
+```
+#### Check Ingress status
+
+```shell
+kubectl get ingress
+NAME           CLASS   HOSTS                   ADDRESS   PORTS
+vpro-ingress   nginx   vprofile.ehmutyam.xyz  <pending>
+```
+wait 3–5 mins to update the address .ADDRESS → AWS NLB DNS
+```shell
+kubectl get ingress
+NAME           CLASS   HOSTS                   ADDRESS                                                                         PORTS   AGE
+vpro-ingress   nginx   vprofile.ehmutyam.xyz   a5463fd475a8a449eb4b4efe54f62e61-680ccb73d736915e.elb.us-east-1.amazonaws.com   80      7m47s
+```
+#### Verify DNS and Access using these commands
+
+```shell
+nslookup vprofile.ehmutyam.xyz
+
+curl http://vprofile.ehmutyam.xyz
+
+dig vprofile.ehmutyam.xyz
+
+```
+## Step 12: DNS Configuration Approaches
+
+  ### 1. **Application Access Architecture**
+     ```shell
+      vprofile.ehmutyam.xyz
+              ↓
+      Route53 / GoDaddy DNS
+              ↓
+      AWS Network Load Balancer (NLB)
+              ↓
+      NGINX Ingress Controller
+              ↓
+      Kubernetes Services
+              ↓
+      Pods (App, DB, Cache, MQ)
+     ```
+
+### **2. DNS Configuration Approaches**
+## Approach 1: Route53 (Recommended for AWS-native setups)
+#####  Step 1: Create Hosted Zone
+    ```shell
+      Go to Route53 → Hosted Zones
+      Domain: ehmutyam.xyz
+      Type: Public Hosted Zone
+    ```shell
+#####  Step 2: Copy Nameservers
+AWS provides 4 NS records:
+```shell
+ns-xxx.awsdns-xx.net
+ns-xxx.awsdns-xx.org
+ns-xxx.awsdns-xx.com
+ns-xxx.awsdns-xx.co.uk
 ```
 
-#### Step 3: Install AWS Load Balancer Controller
-```bash
-helm repo add eks https://aws.github.io/eks-charts
-helm repo update
+##### Step 3: Update GoDaddy Nameservers
+```shell
+Replace GoDaddy default DNS with R53 NS values
+Paste Route53 nameservers
+Wait 5–20 minutes for propagation
 ```
 
+#### Step 4: Create CNAME Record in Route53
+```shell
+Field	        Value
+Record name	  vprofile
+Type	        CNAME
+Value	        AWS NLB DNS
+TTL         	300
 ```
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
-  -n kube-system \
-  --set clusterName=<cluster-name> \
-  --set region=<region> \
-  --set vpcId=<vpcID> \
-  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<aws loadbalancer controller role>
+### Step 5: Access Application
+  http://vprofile.ehmutyam.xyz
+  
+
+## Approach 2: Direct GoDaddy DNS (Simpler & common in projects)
+### Step 1: Keep GoDaddy DNS
+      No nameserver change required
+
+### Step 2: Get NLB DNS from Gitbash
+```shell
+    kubectl get svc -n ingress-nginx
 ```
-verify:
+Copy:
+```shell
+xxxx.elb.us-east-1.amazonaws.com
 ```
-kubectl get deployment -n kube-system aws-load-balancer-controller
-
-kubectl get sa -n kube-system | grep load
+### Step 3: Create CNAME in GoDaddy
+```shell
+Field	   Value
+Type	   CNAME
+Name	   vprofile
+Value	   NLB DNS
+TTL	     1 Hour
 ```
-
-## Application Deployment
-All services are deployed as:
-
-- Deployment
-- ClusterIP Service
-Deploy: 
-```
-kubectl apply -f ns.yaml
-kubectl apply -f cart.yaml
-kubectl apply -f product.yaml
-kubectl apply -f payments.yaml
-```
-
-## Ingress Configuration
-
-### Phase 1: HTTP Deployment
-create:
-```
-kubectl apply -f ingress.yaml
-```
-
-Ingress annotations include:
-- ALB scheme (internet-facing)
-- Target type (ip)
-- Listener: HTTP (port 80)
-
-ALB is automatically provisioned by AWS Load Balancer Controller.
-
-**Test using ALB DNS name.**
-
-### Phase 2: Enable TLS (Production Setup)
-#### Step 1: Create Hosted Zone
-Using:
-- Amazon Route 53
-
-Create public hosted zone:
-```
-example.com
-```
-
-#### Step 2: Create ACM Certificate
-Using:
-- AWS Certificate Manager
+### Step 4: Access Application
+  http://vprofile.ehmutyam.xyz
 
 
-#### Step 3: Update Ingress for TLS
-Add Annotations:
+
+##### Debugging Commands optional
+
+```shell
+#Check ingress details
+kubectl describe ingress vpro-ingress
+#Check all services
+kubectl get svc -A
+#Check ingress controller service
+kubectl get svc -n ingress-nginx
 ```
-alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
-alb.ingress.kubernetes.io/certificate-arn: <certificate arn>
-alb.ingress.kubernetes.io/ssl-redirect: '443'
-```
-Reapply:
-```
-kubectl apply -f ingress.yaml
+## Step 12: Deletion Process
+```shell
+kubectl delete svc ingress-nginx-controller -n ingress-nginx
+
+kubectl delete pvc db-pv-claim
+
+kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
+
+kubectl delete -f .
 ```
 
-### Phase 3: Host-Based Routing
-Final Production Routing:
-
-| Host                 | Service          |
-| -------------------- | ---------------- |
-| cart.example.com     | cart service     |
-| product.example.com  | product service  |
-| payments.example.com | payments service |
-
-Ingress rules:
-```
-rules:
-  - host: cart.example.com
-  - host: product.example.com
-  - host: payments.example.com
-```
-ALB routes traffic based on host headers.
-
-### Traffic Flow
-<image src='./images/traffic.png'>
-
-
-## **Cleanup**
-To destroy infrastructure:
-```
-terraform destroy
+## Step 13: 
+from VS Code deletes all infrastructure created by Terraform
+```shell
+terraform destroy -var-file="dev.tfvars"
 ```
 
 
