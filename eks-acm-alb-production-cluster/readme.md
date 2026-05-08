@@ -574,8 +574,11 @@ nslookup cart.ehmutyam.xyz
 Then open:
 ```shell
 https://cart.ehmutyam.xyz
+
 https://product.ehmutyam.xyz
+
 https://payments.ehmutyam.xyz
+
 ```
 
 ## **20. Process of Deletion**
