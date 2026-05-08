@@ -380,6 +380,13 @@ kubectl describe ingress vpro-ingress
 kubectl get svc -A
 #Check ingress controller service
 kubectl get svc -n ingress-nginx
+
+nslookup vprofile.ehmutyam.xyz
+
+ dig NS ehmutyam.xyz
+
+ nslookup vprofile.ehmutyam.xyz 8.8.8.8
+
 ```
 # Phase 4: Deletion Process
 ## Step1 : Kubernetes Resource Cleanup (Deletion Process in Gitbash bastion server)
