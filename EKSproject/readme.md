@@ -104,7 +104,8 @@ Download or save:
 AWS Access Key
 AWS Secret Access Key
 ```
-In VS code
+**In VS code**
+```shell
 aws --version    #check aws version
 aws configure
 
@@ -115,7 +116,7 @@ Secret Key  : give your secret key
 Region → us-east-1
 json
 
-
+```
 
 ### 4. Create s3 bucket in your region through command or manually
 ```shell
