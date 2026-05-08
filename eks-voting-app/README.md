@@ -2,6 +2,8 @@
 
 A simple distributed application running across multiple Docker containers.
 
+**This repository contains the complete infrastructure and application setup for the Example Voting Application. However, in this documentation, only the Kubernetes deployment procedure for deploying the application on Amazon EKS is explained.**
+
 ## Architecture
 
 ![Architecture diagram](architecture.excalidraw.png)
