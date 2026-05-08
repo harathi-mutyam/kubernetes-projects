@@ -1,0 +1,478 @@
+EKS Project Run Steps (Terraform)
+📁 1. Clone the repository
+git clone https://github.com/harathi-mutyam/PRODUCTION-EKS.git
+cd PRODUCTION-EKS
+📂 2. Go to Terraform working directory
+
+Based on your instructions:
+
+cd eks-project/terraform/eks
+
+Make sure this folder contains:
+
+main.tf
+eks.tf
+vpc.tf
+provider.tf
+dev.tfvars
+3. Configure AWS CLI (mandatory)
+aws configure
+
+Set:
+
+AWS Access Key
+Secret Key
+Region → us-east-1
+4. Create S3 backend bucket (if not already created)
+Through aws console or through command
+
+If your backend.tf uses S3:
+
+aws s3 mb s3://your-terraform-state-bucket --region us-east-1
+
+Also ensure DynamoDB table exists if state locking is used.
+
+
+In dev.tfvars Chance Ami id of Ubuntu Server Based on region
+
+region
+
+change Server Type t3.small to large
+
+5. Create EC2 Key Pair (VERY IMPORTANT)
+
+Your project uses:
+
+data "aws_key_pair"
+
+So key MUST already exist in AWS.(create manually through aws console)
+
+If you use resource "aws_key_pair"
+Generate through ssh-keygen
+
+Step 1: Create local key
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/ec2_keypair
+Step 2: Import into AWS
+aws ec2 import-key-pair \
+  --key-name ec2_keypair \
+  --public-key-material fileb://~/.ssh/ec2_keypair.pub \
+  --region us-east-1
+Step 3: Verify
+aws ec2 describe-key-pairs --key-names ec2_keypair
+6. Initialize Terraform
+terraform init
+
+This will:
+
+download AWS provider
+initialize backend (S3)
+prepare modules
+
+7. Validate configuration
+terraform validate
+
+8. Plan infrastructure
+terraform plan -var-file="dev.tfvars"
+
+Check carefully:
+VPC creation, EKS cluster ,Node groups, EC2 bastion, IAM roles
+
+9. Apply infrastructure
+terraform apply -var-file="dev.tfvars"
+Type:yes
+
+10. Post Deployment (Bastion Host Access)
+
+Because cluster is private:
+
+SSH into Bastion
+ssh -i ~/.ssh/ec2_keypair ubuntu@<bastion-public-ip>
+Configure Kubernetes access
+aws configure
+aws eks update-kubeconfig --region us-east-1 --name dev-eks-demo
+
+Verify:
+
+kubectl get nodes
+11. Install Helm (inside bastion)
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+12. Install AWS Load Balancer Controller
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+Install:
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=<eks-demo> \
+  --set region=us-east-1 \
+  --set vpcId=<vpc-id> \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<IAM-role>    
+
+#replace with your clustername ,vpc id and iam role of loadbalancer(search in aws console iam-->roles-->search  AWSLoadBalancerControllerRole   copy the arn ) arn 
+
+Verify:
+
+git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
+
+
+cd PRODUCTION-EKS
+
+ls
+
+cd EKS-Project
+
+cd k8s
+
+kubectl get deployment -n kube-system
+
+13. Deploy Microservices
+kubectl apply -f ns.yaml
+kubectl apply -f product.yaml
+kubectl apply -f cart.yaml
+kubectl apply -f payments.yaml
+
+vim path-ingress.yaml
+
+comment these 3 lines .These lines are related to https certificate  lines 
+
+
+#alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+#alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:071325923620:certificate/e6c8ab5f-3dcd-42b6-bbbb-2ff4e2b811fc
+#alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+16. Ingress Deployment (HTTP ALB)
+
+kubectl apply -f path-ingress.yaml
+
+loadbalancer created now
+
+kubectl get ingress -n e-commerce
+
+You will see:
+
+ALB DNS name → k8s-default-xxxx.elb.amazonaws.com
+
+Test in browser:
+
+http://<ALB-DNS>    -->payments
+http://<ALB-DNS>/cart   --->cart
+http://<ALB-DNS>/products   --->products
+
+
+
+ 14. Enable TLS (HTTPS Setup)
+Request an acm certificate in aws console
+
+step 1: choose Request a public certificate  --> click on next --> Fully qualified domain name : your godaddy domainname (*.ehmutyam.xyz)
+
+click on request
+
+Certificate Status --> Pending
+
+Open godaddy.com  --> Domain -->DNS  ---> Add New Record  -->
+
+Type: CNAME 
+
+Name : Copy CNAME Name upto before .ehmutyam.xyz (.domainname)  from aws console --->Paste it here
+
+value: Copy CNAME value from aws console (completly)  -->paste it here
+
+after the above procedure
+
+Certificate Status in Aws Console --> Issued
+
+
+
+step 2: 
+
+Create Route53 Hosted Zone
+
+Go to AWS Console → Route53
+
+Click Hosted Zones  -->  Click Create Hosted Zone --->
+Fill:
+Domain: ehmutyam.xyz   <Name must be your godaddy domain name>
+Type: Public Hosted Zone
+Click Create
+
+You will see 2 important things:
+NS (Name Servers) → 4 values
+SOA record
+
+Example: 4 values of ns servers
+
+ns-123.awsdns-45.org
+ns-456.awsdns-90.com
+ns-789.awsdns-12.net
+ns-222.awsdns-34.co.uk
+
+go to GoDaddy in browser:
+
+Login
+Go to:
+My Products → ehmutyam.xyz → DNS
+
+Find Nameservers Tab
+
+Click Change 
+
+Select:
+
+Custom Nameservers : select “I’ll use my own nameservers”
+
+Paste the 4 Route53 NS records without end . (remove last . from NSServers values)
+
+for example:
+
+ns-xxx.awsdns-xx.org
+ns-xxx.awsdns-xx.com
+ns-xxx.awsdns-xx.net
+ns-xxx.awsdns-xx.co.uk
+
+Save
+
+Check ACM Region
+
+Make sure certificate is in:us-east-1 (N. Virginia) ✅ REQUIRED for ALB
+
+Now we connect AWS Load Balancer → Kubernetes
+
+
+open path-ingress.yaml file
+
+uncomment these lines
+alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:071325923620:certificate/e6c8ab5f-3dcd-42b6-bbbb-2ff4e2b811fc     # Replace with your certificate arn number here
+alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+make the above changes  and save the file
+
+kubectl apply -f path-ingress.yaml
+
+kubectl get ingress -n e-commerce
+
+NAME                 CLASS   HOSTS   ADDRESS                                                                   PORTS   AGE
+e-commerce-ingress   alb     *       k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com   80      32s
+
+
+check it in browser
+https://<ALB-DNS>    -->payments
+https://<ALB-DNS>/cart   --->cart  (https://k8s-ecommerc-ecommerc-949981ca5a-1471282601.us-east-1.elb.amazonaws.com/cart/)
+https://<ALB-DNS>/products   --->products
+
+
+
+for debugging  purpose run the below commands optional
+
+# nslookup k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+
+# kubectl get svc
+
+Host based:
+
+create a new ingress.yaml file for host based  or make changes in path-ingress.yaml add host:cart.ehmutyam.xyz under rules: and remove path: /product and /cart
+
+also add under annotations:  -->kubernetes.io/ingress.class: alb this line
+ 
+
+vim ingress.yaml
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d   #replace with your arn
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz    #host based pathing
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz   
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payments-service
+            port:
+              number: 80
+
+
+if not possible replace with your 
+cat <<EOF > ingress.yaml
+
+above content
+
+EOF
+
+
+kubectl get ingress  -n e-commerce
+
+
+You will see:
+
+NAME                     HOSTS   ADDRESS
+e-commerce-ingress    cart.ehmuyam.xyz,..     abc123.us-east-1.elb.amazonaws.com
+
+
+kubectl delete ingress <ingress name> -n e-commerce
+
+
+ in cart.yaml file  change this line because you are using the nginx
+
+  #cat > /usr/share/nginx/html/cart/index.html <<EOF
+   cat > /usr/share/nginx/html/index.html <<EOF
+
+change at same as 
+ annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /cart/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+
+
+
+in product file change this line because you are using the nginx
+
+  #cat > /usr/share/nginx/html/product/html  <<EOF
+
+   cat > /usr/share/nginx/html/index.html <<EOF
+
+ annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /product/index.html
+
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+
+
+kubectl apply -f cart.yaml
+kubectl apply -f product.yaml
+kubectl apply -f payments.yaml
+kubectl apply -f ingress.yaml -n e-commerce
+
+
+kubectl rollout restart deployment -n e-commerce
+
+
+kubectl get pods -n e-commerce
+
+kubectl get svc -n e-commerce
+
+kubectl get ingress -n e-commerce
+
+kubectl apply -f ingress.yaml
+
+
+Connect Domain → ALB (Route53)
+
+Now go to Route53:
+
+Hosted Zone → ehmutyam.xyz
+
+Create records:
+ 
+
+👉 For EACH subdomain:
+1. cart.ehmutyam.xyz
+
+REcord name: cart 
+RecordType: A record
+
+Enable: Alias = YES
+
+Route Traffic to : select Alias to Application and Classic Load Balancer
+
+select region of your ALB : US East(N. Virginia)
+select your ALB here  (for example: dualstack.k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com)
+
+2. product.ehmutyam.xyz
+
+REcord name: product 
+
+
+same foloow here also
+
+3. payments.ehmutyam.xyz
+
+REcord name: payments
+
+same ALB
+
+
+
+doubt: 
+
+What you actually built
+
+You now have:
+
+1. ALB path-based routing
+
+From your ALB rules:
+
+/product → product target group
+/cart → cart target group
+/ → payments (default)
+
+👉 This is path-based routing
+
+till here
+
+
+
+kubectl describe ingress e-commerce-ingress -n e-commerce
+
+
+kubectl delete ingress e-commerce-ingress -n e-commerce
+
+
+kubectl apply -f ingress.yaml
+
+
+
+cart.ehmutyam.xyz → Cart Service
+product.ehmutyam.xyz → Product Service
+payments.ehmutyam.xyz → Payments Service
+
+https://cart.ehmutyam.xyz → Cart Service
+https:product.ehmutyam.xyz → Product Service
+https:payments.ehmutyam.xyz → Payments Service
+
+
+** 16. Process of Deletion **
+
+delete load balancer from baston server gitbash
+kubectl delete -f ingress.yaml
+
+run this command in vs code gitbash
+16. Destroy Infrastructure (Cleanup)
+terraform destroy -var-file="dev.tfvars"

@@ -1,0 +1,1989 @@
+harathi@HARATHI_HOME MINGW64 ~
+$ ssh -i Downloads/ec2_keypair.pem ubuntu@34.238.248.159
+The authenticity of host '34.238.248.159 (34.238.248.159)' can't be established.
+ED25519 key fingerprint is SHA256:P4VDa2mDrZs+PjEBa4uVZg6sY+Zyez1JV/NZgcwS5Tk.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '34.238.248.159' (ED25519) to the list of known hosts.
+Welcome to Ubuntu 26.04 LTS (GNU/Linux 7.0.0-1004-aws x86_64)
+
+ * Documentation:  https://docs.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue May  5 04:29:18 UTC 2026
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   40.4% of 6.61GB   Processes:             115
+  Memory usage: 16%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 10.16.0.72
+
+Expanded Security Maintenance for Applications is not enabled.
+
+16 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+
+ubuntu@ip-10-16-0-72:~$ aws configure
+
+Tip: You can deliver temporary credentials to the AWS CLI using your AWS Console session by running the command 'aws login'.
+
+AWS Access Key ID [None]: give your access ID
+AWS Secret Access Key [None]: replace with your secret key
+Default region name [None]: us-east-1
+Default output format [None]: none
+ubuntu@ip-10-16-0-72:~$ aws configure
+AWS Access Key ID [****************C2DT]: 
+AWS Secret Access Key [****************T5tm]:  
+Default region name [us-east-1]: us-east-1
+Default output format [none]: json
+ubuntu@ip-10-16-0-72:~$ aws eks update-kubeconfig --region us-east-1 --name dev-eks-demo
+Added new context arn:aws:eks:us-east-1:747815018096:cluster/dev-eks-demo to /home/ubuntu/.kube/config
+ubuntu@ip-10-16-0-72:~$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+Downloading https://get.helm.sh/helm-v3.20.2-linux-amd64.tar.gz
+Verifying checksum... Done.
+Preparing to install helm into /usr/local/bin
+helm installed into /usr/local/bin/helm
+ubuntu@ip-10-16-0-72:~$ helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+"eks" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+ubuntu@ip-10-16-0-72:~$ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=dev-eks-demo \
+  --set region=us-east-1 \
+  --set vpcId=vpc-09ce9e5b3bafb6738 \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::747815018096:role/dev-eks-demo-AWSLoadBalancerControllerRole-8373
+NAME: aws-load-balancer-controller
+LAST DEPLOYED: Tue May  5 05:00:33 2026
+NAMESPACE: kube-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+AWS Load Balancer controller installed!
+ubuntu@ip-10-16-0-72:~$ git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
+Cloning into 'PRODUCTION-EKS'...
+remote: Enumerating objects: 288, done.
+remote: Counting objects: 100% (12/12), done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 288 (delta 3), reused 0 (delta 0), pack-reused 276 (from 3)
+Receiving objects: 100% (288/288), 984.59 KiB | 29.84 MiB/s, done.
+Resolving deltas: 100% (117/117), done.
+ubuntu@ip-10-16-0-72:~$ ls
+PRODUCTION-EKS  get_helm.sh
+ubuntu@ip-10-16-0-72:~$ cd PRODUCTION-EKS
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS$ ls
+'EKS Project_Run_Steps_trailnotes.docx'   EKS-01   EKS-02   EKS-03   EKS-04   EKS-Project   README.md   stepstorun-eks-project-through-terraform
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS$ cd EKS-Project
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project$ ls
+images  k8s  readme.md  terraform
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project$ cd terraform
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/terraform$ ls
+EKS  modules
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/terraform$ cd ..
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project$ ls
+images  k8s  readme.md  terraform
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project$ cd k8s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ls
+cart.yaml  ingress.yaml  ns.yaml  payments.yaml  product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get deployment -n kube-system
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+aws-load-balancer-controller   2/2     2            2           3m1s
+coredns                        2/2     2            2           41m
+ebs-csi-controller             2/2     2            2           38m
+metrics-server                 2/2     2            2           38m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ns.yaml
+namespace/e-commerce created
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f product.yaml
+deployment.apps/product-deploy created
+service/product-service created
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f cart.yaml
+deployment.apps/cart-deploy created
+service/cart-service created
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f payments.yaml
+deployment.apps/payments-deploy created
+service/payments-service created
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/e-commerce-ingress created
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress
+No resources found in default namespace.
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress -n e-commerce
+NAME                 CLASS   HOSTS   ADDRESS                                                                   PORTS   AGE
+e-commerce-ingress   alb     *       k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com   80      32s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ nslookup k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+Server:         127.0.0.53
+Address:        127.0.0.53#53
+
+Non-authoritative answer:
+Name:   k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+Address: 52.6.246.192
+Name:   k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+Address: 54.225.53.45
+
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   172.20.0.1   <none>        443/TCP   50m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get pods
+No resources found in default namespace.
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    alb.ingress.kubernetes.io/target-type: ip
+    #alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:xxxx:certificate/e99bfbb3-68b0-4675-a152-ab7dd04b9c84
+    #alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/success-codes: '200'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /product
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 80
+          - path: /cart
+            pathType: Prefix
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-service
+                port:
+                  number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get all -n e-commerce
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/cart-deploy-58f48f566c-9fvq4      0/1     Pending   0          13m
+pod/cart-deploy-58f48f566c-d9s7q      0/1     Pending   0          13m
+pod/payments-deploy-5dbd5d4d-49rwq    0/1     Pending   0          12m
+pod/payments-deploy-5dbd5d4d-m848m    0/1     Pending   0          12m
+pod/product-deploy-5b58474dc4-l7f78   0/1     Pending   0          13m
+pod/product-deploy-5b58474dc4-zp9b6   0/1     Pending   0          13m
+
+NAME                       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/cart-service       ClusterIP   172.20.53.17    <none>        80/TCP    13m
+service/payments-service   ClusterIP   172.20.249.87   <none>        80/TCP    12m
+service/product-service    ClusterIP   172.20.66.82    <none>        80/TCP    13m
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/cart-deploy       0/2     2            0           13m
+deployment.apps/payments-deploy   0/2     2            0           12m
+deployment.apps/product-deploy    0/2     2            0           13m
+
+NAME                                        DESIRED   CURRENT   READY   AGE
+replicaset.apps/cart-deploy-58f48f566c      2         2         0       13m
+replicaset.apps/payments-deploy-5dbd5d4d    2         2         0       12m
+replicaset.apps/product-deploy-5b58474dc4   2         2         0       13m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get nodes
+NAME                            STATUS   ROLES    AGE   VERSION
+ip-10-16-141-158.ec2.internal   Ready    <none>   54m   v1.34.7-eks-40737a8
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl describe pod product-deploy-5b58474dc4-l7f78 -n e-commerce
+Name:           product-deploy-5b58474dc4-l7f78
+Namespace:      e-commerce
+Priority:       0
+Node:           <none>
+Labels:         app=product
+                pod-template-hash=5b58474dc4
+Annotations:    <none>
+Status:         Pending
+IP:
+IPs:            <none>
+Controlled By:  ReplicaSet/product-deploy-5b58474dc4
+Containers:
+  product:
+    Image:      nginx:latest
+    Port:       80/TCP
+    Host Port:  0/TCP
+    Command:
+      /bin/sh
+    Args:
+      -c
+      mkdir -p /usr/share/nginx/html/product
+      cat > /usr/share/nginx/html/product/index.html <<EOF
+      <!DOCTYPE html>
+      <html>
+        <body>
+          <h1>Welcome to Product Service</h1>
+          <h2>EnggVille</h2>
+        </body>
+      </html>
+      EOF
+      nginx -g 'daemon off;'
+
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rr5gb (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False
+Volumes:
+  kube-api-access-rr5gb:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                  From               Message
+  ----     ------            ----                 ----               -------
+  Warning  FailedScheduling  4m37s (x3 over 14m)  default-scheduler  0/1 nodes are available: 1 Too many pods. no new claims to deallocate, preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl scale deployment product-deploy -n e-commerce --replicas=1
+deployment.apps/product-deploy scaled
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl scale deployment cart-deploy -n e-commerce --replicas=1
+deployment.apps/cart-deploy scaled
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl scale deployment payments-deploy -n e-commerce --replicas=1
+deployment.apps/payments-deploy scaled
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ Connection to 34.238.248.159 closed by remote host.
+Connection to 34.238.248.159 closed.
+
+harathi@HARATHI_HOME MINGW64 ~
+$ ssh -i Downloads/ec2_keypair.pem ubuntu@3.237.177.216
+The authenticity of host '3.237.177.216 (3.237.177.216)' can't be established.
+ED25519 key fingerprint is SHA256:P4VDa2mDrZs+PjEBa4uVZg6sY+Zyez1JV/NZgcwS5Tk.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:171: 34.238.248.159
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '3.237.177.216' (ED25519) to the list of known hosts.
+Welcome to Ubuntu 26.04 LTS (GNU/Linux 7.0.0-1004-aws x86_64)
+
+ * Documentation:  https://docs.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue May  5 05:34:20 UTC 2026
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   41.6% of 6.61GB   Processes:             154
+  Memory usage: 7%                Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 10.16.0.72
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+16 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+Last login: Tue May  5 04:29:19 2026 from 87.154.165.190
+ubuntu@ip-10-16-0-72:~$ aws configure
+AWS Access Key ID [****************C2DT]:
+AWS Secret Access Key [****************T5tm]:
+Default region name [us-east-1]:
+Default output format [json]:
+ubuntu@ip-10-16-0-72:~$ aws configure
+AWS Access Key ID [****************C2DT]:
+AWS Secret Access Key [****************T5tm]:
+Default region name [us-east-1]:
+Default output format [json]:
+ubuntu@ip-10-16-0-72:~$ kubectl get nodes
+NAME                            STATUS   ROLES    AGE     VERSION
+ip-10-16-132-214.ec2.internal   Ready    <none>   5m27s   v1.34.7-eks-40737a8
+ip-10-16-151-37.ec2.internal    Ready    <none>   5m26s   v1.34.7-eks-40737a8
+ubuntu@ip-10-16-0-72:~$ kubectl apply -f ns.yaml
+error: the path "ns.yaml" does not exist
+ubuntu@ip-10-16-0-72:~$ git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
+fatal: destination path 'PRODUCTION-EKS' already exists and is not an empty directory.
+ubuntu@ip-10-16-0-72:~$ cd PRODUCTION-EKS
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS$ ls
+'EKS Project_Run_Steps_trailnotes.docx'   EKS-01   EKS-02   EKS-03   EKS-04   EKS-Project   README.md   stepstorun-eks-project-through-terraform
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS$ cd EKS-Project
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project$ ls
+images  k8s  readme.md  terraform
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project$ cd k8s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get deployment -n kube-system
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+aws-load-balancer-controller   2/2     2            2           38m
+coredns                        2/2     2            2           77m
+ebs-csi-controller             2/2     2            2           74m
+metrics-server                 2/2     2            2           74m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ns.yaml
+namespace/e-commerce unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f product.yaml
+deployment.apps/product-deploy configured
+service/product-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f cart.yaml
+deployment.apps/cart-deploy configured
+service/cart-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f payments.yaml
+deployment.apps/payments-deploy configured
+service/payments-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/e-commerce-ingress unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get nodes
+NAME                            STATUS   ROLES    AGE     VERSION
+ip-10-16-132-214.ec2.internal   Ready    <none>   8m10s   v1.34.7-eks-40737a8
+ip-10-16-151-37.ec2.internal    Ready    <none>   8m9s    v1.34.7-eks-40737a8
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get pods -n e-commerce
+NAME                              READY   STATUS    RESTARTS   AGE
+cart-deploy-58f48f566c-7z6q2      1/1     Running   0          15m
+cart-deploy-58f48f566c-twrrc      1/1     Running   0          73s
+payments-deploy-5dbd5d4d-2wfqd    1/1     Running   0          15m
+payments-deploy-5dbd5d4d-pkvdq    1/1     Running   0          65s
+product-deploy-5b58474dc4-mc7l6   1/1     Running   0          83s
+product-deploy-5b58474dc4-xxs85   1/1     Running   0          15m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress -n e-commerce
+NAME                 CLASS   HOSTS   ADDRESS                                                                   PORTS   AGE
+e-commerce-ingress   alb     *       k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com   80      36m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ history
+    1  aws configure
+    2  aws eks update-kubeconfig --region us-east-1 --name dev-eks-demo
+    3  curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    4  chmod 700 get_helm.sh
+    5  ./get_helm.sh
+    6  helm repo add eks https://aws.github.io/eks-charts
+    7  helm repo update
+    8  helm install aws-load-balancer-controller eks/aws-load-balancer-controller   -n kube-system   --set clusterName=dev-eks-demo   --set region=us-east-1   --set vpcId=vpc-09ce9e5b3bafb6738   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::747815018096:role/dev-eks-demo-AWSLoadBalancerControllerRole-8373
+    9  git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
+   10  ls
+   11  cd PRODUCTION-EKS
+   12  ls
+   13  cd EKS-Project
+   14  ls
+   15  cd terraform
+   16  ls
+   17  cd ..
+   18  ls
+   19  cd k8s
+   20  ls
+   21  kubectl get deployment -n kube-system
+   22  kubectl apply -f ns.yaml
+   23  kubectl apply -f product.yaml
+   24  kubectl apply -f cart.yaml
+   25  kubectl apply -f payments.yaml
+   26  kubectl apply -f ingress.yaml
+   27  kubectl get ingress
+   28  kubectl get ingress -n e-commerce
+   29  vim ingress.yaml
+   30  nslookup k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+   31  kubectl get svc
+   32  kubectl get pods
+   33  vim ingress.yaml
+   34  cat ingress.yaml
+   35  kubectl get all -n e-commerce
+   36  kubectl get nodes
+   37  kubectl describe pod product-deploy-5b58474dc4-l7f78 -n e-commerce
+   38  kubectl scale deployment product-deploy -n e-commerce --replicas=1
+   39  kubectl scale deployment cart-deploy -n e-commerce --replicas=1
+   40  kubectl scale deployment payments-deploy -n e-commerce --replicas=1
+   41  aws configure
+   42  kubectl get nodes
+   43  kubectl apply -f ns.yaml
+   44  git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
+   45  cd PRODUCTION-EKS
+   46  ls
+   47  cd EKS-Project
+   48  ls
+   49  cd k8s
+   50  kubectl get deployment -n kube-system
+   51  kubectl apply -f ns.yaml
+   52  kubectl apply -f product.yaml
+   53  kubectl apply -f cart.yaml
+   54  kubectl apply -f payments.yaml
+   55  kubectl apply -f ingress.yaml
+   56  kubectl get nodes
+   57  kubectl get pods -n e-commerce
+   58  kubectl get ingress -n e-commerce
+   59  history
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/success-codes: '200'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /product
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 80
+          - path: /cart
+            pathType: Prefix
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-service
+                port:
+                  number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ mv ingress.yaml pathingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ls
+cart.yaml  ns.yaml  pathingress.yaml  payments.yaml  product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat <<EOF > ingress.yaml
+> apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+> EOF
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+Warning: annotation "kubernetes.io/ingress.class" is deprecated, please use 'spec.ingressClassName' instead
+ingress.networking.k8s.io/microservices-ingress created
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/microservices-ingress configured
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/e-commerce-ingress configured
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress
+NAME                    CLASS   HOSTS                                                          ADDRESS                                                                 PORTS   AGE
+microservices-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehmutyam.xyz   k8s-default-microser-5d796d0d89-545425324.us-east-1.elb.amazonaws.com   80      6m9s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ nslookup cart.ehmutyam.xyz
+Server:         127.0.0.53
+Address:        127.0.0.53#53
+
+Non-authoritative answer:
+Name:   cart.ehmutyam.xyz
+Address: 52.6.246.192
+Name:   cart.ehmutyam.xyz
+Address: 54.225.53.45
+
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ^C
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/e-commerce-ingress unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress
+NAME                    CLASS   HOSTS                                                          ADDRESS                                                                 PORTS   AGE
+microservices-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehmutyam.xyz   k8s-default-microser-5d796d0d89-545425324.us-east-1.elb.amazonaws.com   80      28m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl delete ingress microservices-ingress
+ingress.networking.k8s.io "microservices-ingress" deleted
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/e-commerce-ingress unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   172.20.0.1   <none>        443/TCP   171m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ^C
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml -n e-commerce
+ingress.networking.k8s.io/e-commerce-ingress unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get svc -n e-commerce
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+cart-service       ClusterIP   172.20.53.17    <none>        80/TCP    129m
+payments-service   ClusterIP   172.20.249.87   <none>        80/TCP    129m
+product-service    ClusterIP   172.20.66.82    <none>        80/TCP    129m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress -A
+NAMESPACE    NAME                 CLASS   HOSTS                                                          ADDRESS                                                                   PORTS   AGE
+e-commerce   e-commerce-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehmutyam.xyz   k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com   80      129m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ls
+cart.yaml  ingress.yaml  ns.yaml  pathingress.yaml  payments.yaml  product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim cart.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat product.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: product-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/product
+            #cat > /usr/share/nginx/html/product/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Product Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /product/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f cart.yaml
+deployment.apps/cart-deploy configured
+service/cart-service configured
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f payments.yaml
+deployment.apps/payments-deploy unchanged
+service/payments-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f product.yaml
+deployment.apps/product-deploy configured
+service/product-service configured
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml -n e-commerce
+ingress.networking.k8s.io/e-commerce-ingress unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress
+No resources found in default namespace.
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress -n e-commerce
+NAME                 CLASS   HOSTS                                                          ADDRESS                                                                   PORTS   AGE
+e-commerce-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehmutyam.xyz   k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com   80      141m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl rollout restart deployment -n e-commerce
+deployment.apps/cart-deploy restarted
+deployment.apps/payments-deploy restarted
+deployment.apps/product-deploy restarted
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get pods -n e-commerce
+NAME                               READY   STATUS        RESTARTS   AGE
+cart-deploy-78cd6999f4-b8mq8       1/1     Terminating   0          110s
+cart-deploy-78cd6999f4-lcz25       1/1     Terminating   0          111s
+cart-deploy-7b4f8fb7d5-5bmwr       1/1     Running       0          14s
+cart-deploy-7b4f8fb7d5-m2swk       1/1     Running       0          15s
+payments-deploy-5dbd5d4d-2wfqd     1/1     Terminating   0          122m
+payments-deploy-5dbd5d4d-pkvdq     1/1     Terminating   0          107m
+payments-deploy-6784549c8f-5j22q   1/1     Running       0          15s
+payments-deploy-6784549c8f-jlcbx   1/1     Running       0          14s
+product-deploy-5946bfbd7-2s6zj     1/1     Terminating   0          81s
+product-deploy-5946bfbd7-7hpjp     1/1     Terminating   0          80s
+product-deploy-5d6d8f4f58-58ncx    1/1     Running       0          15s
+product-deploy-5d6d8f4f58-qs4kj    1/1     Running       0          14s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get svc -n e-commerce
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+cart-service       ClusterIP   172.20.53.17    <none>        80/TCP    143m
+payments-service   ClusterIP   172.20.249.87   <none>        80/TCP    142m
+product-service    ClusterIP   172.20.66.82    <none>        80/TCP    143m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get ingress -n e-commerce
+NAME                 CLASS   HOSTS                                                          ADDRESS                                                                   PORTS   AGE
+e-commerce-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehmutyam.xyz   k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com   80      142m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat product.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: product-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/product
+            #cat > /usr/share/nginx/html/product/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Product Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /product/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat cart.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: cart-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/cart
+            #cat > /usr/share/nginx/html/cart/index.html <<EOF
+            cat > /usr/share/nginx/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Cart Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /cart/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: cart
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim cart.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim cart.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f cart.yaml
+deployment.apps/cart-deploy configured
+service/cart-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f product.yaml
+deployment.apps/product-deploy unchanged
+service/product-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f payments.yaml
+deployment.apps/payments-deploy unchanged
+service/payments-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml -n e-commerce
+ingress.networking.k8s.io/e-commerce-ingress unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl rollout restart deployment -n e-commerce
+deployment.apps/cart-deploy restarted
+deployment.apps/payments-deploy restarted
+deployment.apps/product-deploy restarted
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get pods -n e-commerce
+NAME                               READY   STATUS        RESTARTS   AGE
+cart-deploy-5797f57d57-7wdbl       1/1     Terminating   0          53s
+cart-deploy-5797f57d57-9428j       1/1     Terminating   0          52s
+cart-deploy-5f9cc69f7-5jlmv        1/1     Running       0          12s
+cart-deploy-5f9cc69f7-6zbx8        1/1     Running       0          13s
+payments-deploy-54c86b4d69-9wpx8   1/1     Running       0          13s
+payments-deploy-54c86b4d69-j97zq   1/1     Running       0          12s
+payments-deploy-6784549c8f-5j22q   1/1     Terminating   0          9m59s
+payments-deploy-6784549c8f-jlcbx   1/1     Terminating   0          9m58s
+product-deploy-5d6d8f4f58-58ncx    1/1     Terminating   0          9m59s
+product-deploy-5d6d8f4f58-qs4kj    1/1     Terminating   0          9m58s
+product-deploy-6c98ff44b-hltwb     1/1     Running       0          13s
+product-deploy-6c98ff44b-jcdq9     1/1     Running       0          12s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ^C
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get pods -n e-commerce
+NAME                               READY   STATUS    RESTARTS   AGE
+cart-deploy-5f9cc69f7-5jlmv        1/1     Running   0          64s
+cart-deploy-5f9cc69f7-6zbx8        1/1     Running   0          65s
+payments-deploy-54c86b4d69-9wpx8   1/1     Running   0          65s
+payments-deploy-54c86b4d69-j97zq   1/1     Running   0          64s
+product-deploy-6c98ff44b-hltwb     1/1     Running   0          65s
+product-deploy-6c98ff44b-jcdq9     1/1     Running   0          64s
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl get svc -n e-commerce
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+cart-service       ClusterIP   172.20.53.17    <none>        80/TCP    153m
+payments-service   ClusterIP   172.20.249.87   <none>        80/TCP    153m
+product-service    ClusterIP   172.20.66.82    <none>        80/TCP    153m
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat cart.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: cart-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/cart
+            #cat > /usr/share/nginx/html/cart/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Cart Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /cart/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: cart
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat product.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: product-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/product
+            #cat > /usr/share/nginx/html/product/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Product Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /product/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim cart.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim cart.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl describe ingress e-commerce-ingress -n e-commerce
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+Name:             e-commerce-ingress
+Namespace:        e-commerce
+Address:          k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host                   Path  Backends
+  ----                   ----  --------
+  cart.ehmutyam.xyz
+                         /   cart-service:80 (10.16.129.189:80,10.16.159.142:80)
+  product.ehmutyam.xyz
+                         /   product-service:80 (10.16.137.106:80,10.16.156.122:80)
+  payments.ehmutyam.xyz
+                         /   payment-service:80 (<error: endpoints "payment-service" not found>)
+Annotations:             alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+                         alb.ingress.kubernetes.io/listen-ports: [{"HTTPS": 443}, {"HTTP": 80}]
+                         alb.ingress.kubernetes.io/scheme: internet-facing
+                         alb.ingress.kubernetes.io/ssl-redirect: 443
+                         kubernetes.io/ingress.class: alb
+Events:
+  Type     Reason            Age                   From     Message
+  ----     ------            ----                  ----     -------
+  Warning  FailedBuildModel  5m11s (x23 over 71m)  ingress  Failed build model due to ingress: e-commerce/e-commerce-ingress: TargetGroup port is empty. When using Instance targets, your service be must of type 'NodePort' or 'LoadBalancer'
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat payments.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: payments-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Payments Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-service
+  namespace: e-commerce
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: payments
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIPubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat payments.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: payments-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Payments Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-service
+  namespace: e-commerce
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: payments
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIPubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payments-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ vim ingress.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f product.yaml
+deployment.apps/product-deploy unchanged
+service/product-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f cart.yaml
+deployment.apps/cart-deploy unchanged
+service/cart-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f payments.yaml
+deployment.apps/payments-deploy unchanged
+service/payments-service unchanged
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl apply -f ingress.yaml -n e-commerce
+ingress.networking.k8s.io/e-commerce-ingress configured
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl rollout restart deployment -n kube-system aws-load-balancer-controller
+deployment.apps/aws-load-balancer-controller restarted
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl describe ingress -n e-commerce
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+Name:             e-commerce-ingress
+Namespace:        e-commerce
+Address:          k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host                   Path  Backends
+  ----                   ----  --------
+  cart.ehmutyam.xyz
+                         /   cart-service:80 (10.16.129.189:80,10.16.159.142:80)
+  product.ehmutyam.xyz
+                         /   product-service:80 (10.16.137.106:80,10.16.156.122:80)
+  payments.ehmutyam.xyz
+                         /   payments-service:80 (10.16.141.157:80,10.16.153.167:80)
+Annotations:             alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+                         alb.ingress.kubernetes.io/listen-ports: [{"HTTPS": 443}, {"HTTP": 80}]
+                         alb.ingress.kubernetes.io/scheme: internet-facing
+                         alb.ingress.kubernetes.io/ssl-redirect: 443
+                         alb.ingress.kubernetes.io/target-type: ip
+                         kubernetes.io/ingress.class: alb
+Events:
+  Type     Reason                  Age                 From     Message
+  ----     ------                  ----                ----     -------
+  Warning  FailedBuildModel        11m (x23 over 77m)  ingress  Failed build model due to ingress: e-commerce/e-commerce-ingress: TargetGroup port is empty. When using Instance targets, your service be must of type 'NodePort' or 'LoadBalancer'
+  Normal   SuccessfullyReconciled  55s (x2 over 141m)  ingress  Successfully reconciled
+  Normal   SuccessfullyReconciled  17s                 ingress  Successfully reconciled
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payments-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat cart.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: cart-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/cart
+            #cat > /usr/share/nginx/html/cart/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Cart Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /cart/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: cart
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat products.yaml
+cat: products.yaml: No such file or directory
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat product.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: product-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/product
+            #cat > /usr/share/nginx/html/product/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Product Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /product/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payments-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat cart.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: cart-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/cart
+            #cat > /usr/share/nginx/html/cart/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Cart Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /cart/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: cart
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat product.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: product-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/product
+            #cat > /usr/share/nginx/html/product/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Product Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /product/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat oldingress.yaml
+cat: oldingress.yaml: No such file or directory
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ls
+1  cart.yaml  ingress.yaml  ns.yaml  pathingress.yaml  payments.yaml  product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat pathingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/success-codes: '200'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /product
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 80
+          - path: /cart
+            pathType: Prefix
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-service
+                port:
+                  number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  rules:
+  - host: cart.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cart-service
+            port:
+              number: 80
+
+  - host: product.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
+  - host: payments.ehmutyam.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payments-service
+            port:
+              number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ls
+1  cart.yaml  ingress.yaml  ns.yaml  pathingress.yaml  payments.yaml  product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat cart.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: cart-deploy
+  namespace: e-commerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh"]
+          args:
+          - -c
+          - |
+            mkdir -p /usr/share/nginx/html/cart
+            #cat > /usr/share/nginx/html/cart/index.html <<EOF
+            cat > /usr/share/nginx/html/index.html <<EOF
+            <!DOCTYPE html>
+            <html>
+              <body>
+                <h1>Welcome to Cart Service</h1>
+                <h2>EnggVille</h2>
+              </body>
+            </html>
+            EOF
+            nginx -g 'daemon off;'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-service
+  namespace: e-commerce
+  annotations:
+    #alb.ingress.kubernetes.io/healthcheck-path: /cart/index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+spec:
+  selector:
+    app: cart
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ ls
+1  cart.yaml  ingress.yaml  ns.yaml  pathingress.yaml  payments.yaml  product.yaml
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ cat pathingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: e-commerce-ingress
+  namespace: e-commerce
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:747815018096:certificate/32016496-0198-4748-8d71-ab067ab2643d
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/success-codes: '200'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /product
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 80
+          - path: /cart
+            pathType: Prefix
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-service
+                port:
+                  number: 80
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ kubectl delete -f ingress.yaml
+ingress.networking.k8s.io "e-commerce-ingress" deleted
+ubuntu@ip-10-16-0-72:~/PRODUCTION-EKS/EKS-Project/k8s$ Connection to 3.237.177.216 closed by remote host.
+Connection to 3.237.177.216 closed.
+
+harathi@HARATHI_HOME MINGW64 ~
