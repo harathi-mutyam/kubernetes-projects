@@ -113,22 +113,25 @@ terraform -version
 ## **1.Clone the repository to local: create a empty directory in local .Then clone it**
 
 or 
-## **in vs code-->click on terminal-->new terminal-->select git bash-->change to local directory --> run git clone command-->after cloning finished--->cick on file-->open Folder-->select your cloned repository**
+## **in vs code-->click on terminal-->new terminal-->select git bash-->change to local directory --> run git clone command-->after cloning finished--->cick on file-->open Folder-->select your cloned repository(project folder)**
 ```shell
-git clone https://github.com/harathi-mutyam/PRODUCTION-EKS.git
+#git clone https://github.com/harathi-mutyam/PRODUCTION-EKS.git
 
-cd PRODUCTION-EKS
+git clone https://github.com/harathi-mutyam/kubernetes-projects.git
+
+ls
+cd eks-acm-alb-production-cluster
+
 ```
 ## **2. Go to Terraform working directory**
 
 Based on your instructions:
 ```shell
 ls
-cd eks-project
-ls
+
 cd terraform
 ls
-cd eks
+cd EKS
 ```
 Make sure this folder contains: main.tf ,eks.tf,vpc.tf,provider.tf,dev.tfvars
 
@@ -184,6 +187,8 @@ data "aws_key_pair"
 
 So key MUST already exist in AWS.**(create manually through aws console)**
 
+# optional  procedure create keypair through commands
+
 If you use resource "aws_key_pair"
 Generate through ssh-keygen
 
@@ -201,7 +206,9 @@ aws ec2 import-key-pair \
 ### Step 3: Verify
 ```shell
 aws ec2 describe-key-pairs --key-names ec2_keypair
-```  
+```
+
+
 ## **6. Initialize Terraform**
 ```shell
 terraform init
@@ -281,18 +288,29 @@ replace with your clustername ,vpc id and iam role of loadbalancer(search in aws
 
 ## **13. Clone your repository on the Bastion Server for microservices deployment**
 ```shell
-git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
-cd PRODUCTION-EKS
+#git clone "https://github.com/harathi-mutyam/PRODUCTION-EKS.git"
+git clone https://github.com/harathi-mutyam/kubernetes-projects.git
 ls
-cd EKS-Project
+cd kubernetes-projects
+ls
+cd eks-acm-alb-production-cluster
+ls
 cd k8s
 
 kubectl get deployment -n kube-system
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+aws-load-balancer-controller   2/2     2            2           2m7s
+coredns                        2/2     2            2           11m
+ebs-csi-controller             2/2     2            2           8m34s
+metrics-server                 2/2     2            2           8m37s
+
 
 ```
 
 ## **14. Deploy Microservices for path based routing  or Set up microservices deployment with path-based routing.**
 ```shell
+ls
 kubectl apply -f ns.yaml
 kubectl apply -f product.yaml
 kubectl apply -f cart.yaml
@@ -310,6 +328,12 @@ alb.ingress.kubernetes.io/ssl-redirect: '443'
 ```shell
 kubectl apply -f path-ingress.yaml    #loadbalancer created now
 kubectl get ingress -n e-commerce
+
+
+NAME                 CLASS   HOSTS   ADDRESS                                                                  PORTS   AGE
+e-commerce-ingress   alb     *       k8s-ecommerc-ecommerc-949981ca5a-743716116.us-east-1.elb.amazonaws.com   80      9s
+
+
 ```
 **You will see:**
 
@@ -321,7 +345,7 @@ Before test it in browsers check it in aws console-->ec2-->load balncer-->provis
 ```shell
 http://`<ALB-DNS>`    -->payments
 http://`<ALB-DNS>`/cart   --->cart
-http://`<ALB-DNS>`/products   --->products
+http://`<ALB-DNS>`/product   --->product
 ```
 
  ## 14. **HTTPS Setup** (ACM + GoDaddy)  Enable TLS (HTTPS Setup)
@@ -431,20 +455,13 @@ Notes: ALB path-based routing  From your ALB rules: /product → product target 
 ## **18. Host-Based Routing Setup:**
 ```shell
 vim hostbased-ingress.yaml  # replace acm certicate arn with your certificate arn
-kubectl get ingress  -n e-commerce
 ```
+save the file
 
-You will see:
-```shell
-NAME                     HOSTS   ADDRESS
-e-commerce-ingress    cart.ehmuyam.xyz,..     abc123.us-east-1.elb.amazonaws.com
-```
-```shell
-kubectl describe ingress e-commerce-ingress -n e-commerce   #this command optional
-```
 #remove old alb(application load balancer of path based and create a new alb for host based)
 ```shell
-kubectl delete ingress e-commerce-ingress -n e-commerce #syntax kubectl delete ingress IngressName -n NameSPaceName
+kubectl delete ingress e-commerce-ingress -n e-commerce
+#syntax kubectl delete ingress IngressName -n NameSPaceName
 ```
 *replace this (ingress name) with your ingress name*
 
@@ -453,9 +470,14 @@ kubectl apply -f hostbased-cart.yaml
 kubectl apply -f hostbased-product.yaml
 kubectl apply -f payments.yaml    #payments.yaml is same for both path and host based because here we used /html/index.html but in cart and products we /prodcut/index.html , /cart/index.html for referece check it in another notes
 kubectl apply -f hostbased-ingress.yaml
+kubectl get ingress -n e-commerce
+NAME                 CLASS   HOSTS                                                          ADDRESS                                                                   PORTS   AGE
+e-commerce-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehmutyam.xyz   k8s-ecommerc-ecommerc-949981ca5a-1658476761.us-east-1.elb.amazonaws.com   80      3m56s
+
+
 ```
 
-for debuggin if you got any isse use below commands check pods ,svc ,ingress and roll out 
+**for debuggin if you got any isse use below commands check pods ,svc ,ingress and roll out**
 
 #kubectl rollout restart deployment -n e-commerce
 
@@ -469,6 +491,7 @@ for debuggin if you got any isse use below commands check pods ,svc ,ingress and
 
 ## **19. Connect Domain → ALB using Route 53**
 
+# Procedure 1:
 **Step 1: Open Hosted Zone**
 
 Now go to Route53--> Hosted Zone → ehmutyam.xyz
@@ -510,77 +533,15 @@ https:product.ehmutyam.xyz → Product Service
 
 https:payments.ehmutyam.xyz → Payments Service
 
-
-## **20. Process of Deletion**
-
-**delete load balancer from baston server gitbash first**
+# Procedure2
 ```shell
-kubectl delete -f hostbased-ingress.yaml
-```
-run this command in vs code gitbash
-
-**Destroy Infrastructure (Cleanup)**
-```shell
-terraform destroy -var-file="dev.tfvars"
-```
-
-
-
-# GoDaddy is only: domain registrar
-
-You either:
-
-Option A:
-**point NS records to Route53**
-
-OR
-
-Option B:
-**directly add CNAME records**
-
-
-# Other way to add CNAME Records in godaddy instead of ns records follow the below procedure
+Remove NS records of R53 in Godaddy.com add CNAME records
 
 use default ns records of godaddy.com 
 
-👉 DELETE ALL NS records if you have added in the first process
+👉 DELETE ALL NS records if you have added in the first process for R53 Ns Records
 
 ⚠️ No NS records needed at all.
-
-## Step 1: Create SSL Certificate (ACM)
-
-first create a ACM Certificate in aws console 
-
-In Amazon Certificate Manager:--->Request certificate:  *.ehmutyam.xyz
-
-Choose: DNS validation
-
-It will give CNAME records 
-
-later add cname name  and cname value of a certificate in godaddy.com  as a DNS Records--> Add a New Record--> 
-
-choose Type: CNAME record  Name: CNAME Name  Value: CNAME Value    -->click on Save
-
-Go to Amazon Certificate Manager -->check Status is pending or ISSUED
-
-Wait until status: ISSUED
-
-
-
-
-## STEP 2 — Configure ALB Ingress (VERY IMPORTANT)
-
-Update your Kubernetes hostbased-ingress.yaml:  <ACM-ARN>  #replace with your certificate ARN
-
-### Apply:
-
-```shell
- kubectl apply -f ns.yaml
- kubectl apply -f  hostbased-cart.yaml
- kubectl apply -f hostbased-product.yaml
- kubectl apply -f payments.yaml
- kubectl apply -f hostbased-ingress.yaml   
- kubectl get ingress -n e-commerce  #copy the alb DNS name
 ```
 
 ### create CNAME records in godaddy.com for https purpose 
@@ -599,15 +560,43 @@ k8s-ecommerc-xxxxx.us-east-1.elb.amazonaws.com
 ## STEP 5 — Test flow
 
 First check DNS:
-
+```shell
 nslookup cart.ehmutyam.xyz
-
+```
 Then open:
 ```shell
 https://cart.ehmutyam.xyz
 https://product.ehmutyam.xyz
 https://payments.ehmutyam.xyz
 ```
+
+## **20. Process of Deletion**
+
+**delete load balancer from baston server gitbash first**
+```shell
+kubectl delete -f hostbased-ingress.yaml
+```
+run this command in vs code gitbash
+
+**Destroy Infrastructure (Cleanup)**
+```shell
+terraform destroy -var-file="dev.tfvars"
+```
+
+# Note
+
+GoDaddy is only: domain registar
+
+You either:
+
+Option A:
+**point NS records to Route53**   then add A records in R53
+
+OR
+
+Option B:
+**directly add CNAME records with ALB DNS**
+
 
 # **Note**: **Difference between path based and host based routing**
 
@@ -624,6 +613,7 @@ Application needed to serve content from:
 Health check:
 
 /cart/index.html
+
 ## Host-Based Routing (Now)
 
 URL used:
@@ -650,10 +640,3 @@ So the application must serve content from index.html instead of a subfolder.**
 Application works correctly with:
 
 http://cart.ehmutyam.xyz
-No 404 errors
-ALB health checks pass successfully
-
-Add 
-
-
-
