@@ -491,6 +491,8 @@ e-commerce-ingress   alb     cart.ehmutyam.xyz,product.ehmutyam.xyz,payments.ehm
 
 ## **19. Connect Domain → ALB using Route 53**
 
+## Follow either procedure 1 or procedure 2
+
 # Procedure 1:
 **Step 1: Open Hosted Zone**
 
