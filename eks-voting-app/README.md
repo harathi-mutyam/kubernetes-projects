@@ -459,6 +459,7 @@ curl -H "Host: vote.ehmutyam.xyz" http://k8s-votingapp-015023cb5f-1200792225.us-
 Once DNS propagation completes:
 
 http://vote.yourdomain.com
+
 http://result.yourdomain.com
 
 ## Step 8: Process of Deletion
