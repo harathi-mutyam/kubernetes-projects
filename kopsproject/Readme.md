@@ -422,7 +422,7 @@ Save the Record
 
 check it in browser after follow the procedure 1
 
-http://kopsvprofile.xyz  --> After configuring DNS and the Ingress controller correctly, open your browser and access the application using:
+http://vprofile.ehmutyam.xyz  --> After configuring DNS and the Ingress controller correctly, open your browser and access the application using:
 
 If everything is set up properly (Ingress, Load Balancer, and DNS record), the VProfile application homepage will be displayed successfully in the browser.
 
