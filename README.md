@@ -2,15 +2,18 @@
 ## 1. KOPS-Based Kubernetes Cluster Deployment
 
 Production-style Kubernetes cluster setup on AWS using KOPS.
+
+**Features**
 ```shell
-Features
 Kubernetes cluster provisioning using KOPS
 Route53 integration
 S3 bucket for KOPS state store
 EC2 worker and master nodes
 NGINX Ingress Controller
 Application deployment on Kubernetes
-Technologies Used
+```
+**Technologies Used**
+```shell
 KOPS
 Kubernetes
 AWS EC2
@@ -21,9 +24,8 @@ NGINX Ingress
 ```
 ## 2. AWS EKS Deployment with Terraform & NGINX Ingress
 Production-grade Amazon EKS deployment using Terraform and Kubernetes manifests.
-
+**Features**
 ```shell
-Features
 Private Amazon EKS cluster
 Terraform Infrastructure as Code
 Bastion host setup
@@ -32,7 +34,9 @@ NGINX Ingress Controller
 Route53 / GoDaddy DNS integration
 Persistent storage using PVC
 Secure microservices deployment
-Technologies Used
+```
+**Technologies Used**
+```shell
 Amazon EKS
 Terraform
 Kubernetes
