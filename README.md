@@ -43,7 +43,19 @@ Kubernetes
 AWS NLB
 Route53
 IAM
-```
+
 VPC
 NAT Gateway
 NGINX Ingress Controller
+```
+## 3. eks-acm-alb-production-cluster
+```shell
+Production-Grade AWS EKS Deployment with ALB, TLS & Route53 path and host based (Terraform Automated)
+1. AWS Load Balancer Controller (ALB)
+2. HTTPS using AWS Certificate Manager (ACM)
+3. Path-Based Routing
+4. Host-Based Routing
+5. Secure TLS termination at ALB
+6. Microservices architecture (cart, product, payments)
+7. Route53 / GoDaddy DNS integration
+```
