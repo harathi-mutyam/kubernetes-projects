@@ -1,5 +1,6 @@
+#RabbitMQ Deployment (Message Broker Pod)
 # =========================================================
-#  vProfile RabbitMQ Deployment (Message Broker Layer)
+# 🐇 vProfile RabbitMQ Deployment (Message Broker Layer)
 # =========================================================
 # Purpose:
 # - Provides messaging queue system for vProfile application
@@ -36,7 +37,10 @@ spec:
               key: rmq-pass
         - name: RABBITMQ_DEFAULT_USER
           value: "guest"
+
+
 ---
+#RabbitMQ Internal Service (ClusterIP for Communication)
 # =========================================================
 # 🌐 RabbitMQ Internal Service (ClusterIP)
 # =========================================================

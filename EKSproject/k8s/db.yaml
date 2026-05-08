@@ -1,3 +1,4 @@
+#MySQL Database Deployment
 # =========================================================
 #  vProfile MySQL Database Deployment
 # =========================================================
@@ -23,7 +24,7 @@ spec:
       labels:
         app: vprodb
     spec:
-      initContainers:
+      initContainers:    #Removes lost+found directory before MySQL starts.Ensures clean volume initialization
         - name: busybox
           image: busybox:latest
           args: ["rm", "-rf", "/var/lib/mysql/lost+found"]
@@ -45,14 +46,15 @@ spec:
                 secretKeyRef:
                   name: app-secret
                   key: db-pass
-      volumes:    #Persistent Storage (PVC) # Keeps MySQL data safe even if pod restarts
+      volumes:        #Persistent Storage (PVC).Stores MySQL data persistently.Prevents data loss when pod restarts
         - name: vpro-db-data
           persistentVolumeClaim:
             claimName: db-pv-claim
 
 ---
+#db Internal Service
 # =========================================================
-# vProfile Database Service (Internal Access Only)
+#  vProfile Database Service (Internal Access Only)
 # =========================================================
 # Type: ClusterIP
 # Used only inside Kubernetes cluster

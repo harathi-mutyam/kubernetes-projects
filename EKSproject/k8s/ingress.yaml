@@ -1,5 +1,5 @@
 # =========================================================
-#  vProfile Ingress Controller (External Access Layer)
+# 🌐 vProfile Ingress Controller (External Access Layer)
 # =========================================================
 # Purpose:
 # - Exposes vProfile application to the internet
@@ -13,10 +13,12 @@ metadata:
   name: vpro-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
+    #alb.ingress.kubernetes.io/scheme: internet-facing  #Only use these if you switch to AWS ALB Ingress Controller, not NGINX.
+    #alb.ingress.kubernetes.io/target-type: ip
 spec:
   ingressClassName: nginx
   rules:
-  - host: kopskubvprofile.ehmutyam.xyz   #replace with your project.domainname.com
+  - host: vprofile.ehmutyam.xyz   #replace this host with your domaain name
     http:
       paths:
       - path: /

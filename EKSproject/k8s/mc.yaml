@@ -28,9 +28,10 @@ spec:
         ports:
         - name: vpromc-port
           containerPort: 11211
+
 ---
 # =========================================================
-# 🌐 Memcached Internal Service (ClusterIP)
+#  Memcached Internal Service (ClusterIP)
 # =========================================================
 # Purpose:
 # - Exposes Memcached within Kubernetes cluster only
