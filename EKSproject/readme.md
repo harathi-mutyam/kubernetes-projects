@@ -120,7 +120,7 @@ json
 ```
 
 ### 4. Create s3 bucket in your region through command or manually in Aws Console
-Procedure to creeate s3 Bucket manually
+Procedure to creeate s3 Bucket through commands
 ```shell
 #create a bucket
  aws s3 mb s3://eksprojectstatebkt8526 --region us-east-1
@@ -294,7 +294,7 @@ dig vprofile.ehmutyam.xyz
 
   ### 1. **Application Access Architecture**
      ```shell
-      vprofile.ehmutyam.xyz
+      vprofile.ehmutyam.xyz (project.Yourdomainname)
               ↓
       Route53 / GoDaddy DNS
               ↓
@@ -307,7 +307,6 @@ dig vprofile.ehmutyam.xyz
       Pods (App, DB, Cache, MQ)
      ```
 
-### **2. DNS Configuration Approaches**
 ## Approach 1: Route53 (Recommended for AWS-native setups)
 #####  Step 1: Create Hosted Zone
     ```shell
