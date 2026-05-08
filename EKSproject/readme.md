@@ -118,7 +118,8 @@ json
 
 ```
 
-### 4. Create s3 bucket in your region through command or manually
+### 4. Create s3 bucket in your region through command or manually in Aws Console
+Procedure to creeate s3 Bucket manually
 ```shell
 #create a bucket
  aws s3 mb s3://eksprojectstatebkt8526 --region us-east-1
