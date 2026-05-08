@@ -366,7 +366,7 @@ TTL	     1 Hour
   http://vprofile.ehmutyam.xyz
 
 
-# Phase 4
+
 ##### Debugging Commands optional
 
 ```shell
@@ -377,7 +377,7 @@ kubectl get svc -A
 #Check ingress controller service
 kubectl get svc -n ingress-nginx
 ```
-# Phase 5: Deletion Process
+# Phase 4: Deletion Process
 ## Step1 : Kubernetes Resource Cleanup (Deletion Process in Gitbash bastion server)
 ```shell
 kubectl delete svc ingress-nginx-controller -n ingress-nginx
