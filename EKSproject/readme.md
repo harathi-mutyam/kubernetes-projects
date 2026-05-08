@@ -376,7 +376,7 @@ kubectl get svc -A
 #Check ingress controller service
 kubectl get svc -n ingress-nginx
 ```
-## Step 12: Deletion Process in Gitbash
+## Step 13: Kubernetes Resource Cleanup (Deletion Process in Gitbash bastion server)
 ```shell
 kubectl delete svc ingress-nginx-controller -n ingress-nginx
 
@@ -387,7 +387,7 @@ kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/con
 kubectl delete -f .
 ```
 
-## Step 13: 
+## Step 14: Destroy Terraform Infrastructure
 from VS Code deletes all infrastructure created by Terraform
 ```shell
 terraform destroy -var-file="dev.tfvars"
