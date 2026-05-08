@@ -288,48 +288,84 @@ kubectl get ingress -n voting-app
 
 # PROCEDURE 1 (Recommended – Route 53 Managed DNS)
 
-### **Step 1: Open Hosted Zone**
+### Route53 Setup
 
-Now go to Route53--> Hosted Zone → ehmutyam.xyz
+**Create Route53 Hosted Zone**
 
-**Step 2: Create A Records (Alias → ALB)**
+Go to AWS Console → Route53 --> Click Hosted Zones --> Click on Create Hosted Zone --->
 
-Create records: For EACH subdomain:
-1. **cart.ehmutyam.xyz**
+Domain: ehmutyam.xyz Type: choose Public Hosted Zone Click Create
 
-REcord Name: **cart **
-Record Type: **A record**
+You will see 2 important things: NS (Name Servers) → 4 values SOA record
 
-Enable: Alias = **YES**
+Example: 4 values of ns servers
 
-Route Traffic to : **select Alias to Application and Classic Load Balancer**
+ns-123.awsdns-45.org
+ns-456.awsdns-90.com
+ns-789.awsdns-12.net
+ns-222.awsdns-34.co.uk
+copy ns records
 
-select region of your ALB : US East(N. Virginia)
-select **your ALB DNS here** (for example: dualstack.k8s-ecommerc-ecommerc-949981ca5a-1099050560.us-east-1.elb.amazonaws.com)
 
-2. **product.ehmutyam.xyz**
+### Update GoDaddy Nameservers
 
-REcord name: product 
+go to GoDaddy in browser:
 
-same foloow here also
+Login Go to: My Products → ehmutyam.xyz → DNS --> Find Nameservers Tab --> Click Change
 
-3. **payments.ehmutyam.xyz**
+Select:
 
-REcord name: payments
+Custom Nameservers : select “I’ll use my own nameservers”
 
-same ALB
+Paste the 4 Route53 NS records without end . (remove last . from NSServers values)
 
+for example:
+
+ns-xxx.awsdns-xx.org
+ns-xxx.awsdns-xx.com
+ns-xxx.awsdns-xx.net
+ns-xxx.awsdns-xx.co.uk
+Save
+**Configure DNS Records for the ALB**
+
+Later add A or CNAME records in R53 under domain name
+
+AWS Console → Route53 → Hosted Zones → Your Domain
+
+**Create records for each application:**
+
+```shell
+RecordType	   Name	    Target
+A (Alias)	     vote	    ALB DNS Name
+A (Alias)	      result	ALB DNS Name
+```
+Point both records to:
+
+k8s-votingapp-xxxxxxxx.us-east-1.elb.amazonaws.com
+Alias → Application Load Balancer
+```shell
+steps in detail:
+
+REcord Name: **vote ** Record Type: A record
+
+Enable: Alias = YES
+
+Route Traffic to : select Alias to Application and Classic Load Balancer
+
+select region of your ALB : US East(N. Virginia) 
+
+select your ALB DNS here (for example: k8s-votingapp-xxxxxxxx.us-east-1.elb.amazonaws.com)
 
 **Check it in browser :** with host names
+```
 
-https://cart.ehmutyam.xyz → output will be Welcome to cart Service    EnggVille
-
-https:product.ehmutyam.xyz → Product Service
-
-https:payments.ehmutyam.xyz → Payments Service
+http://vote.ehmutyam.xyz → 
+http://result.ehmutyam.xyz →
 
 # PROCEDURE 2 (GoDaddy CNAME Method)
+
 Use this ONLY if you are NOT using Route 53 NS delegation. 
+
 ## Step 1: Remove Route 53 NS Setup
 
 ```shell
@@ -337,28 +373,51 @@ Remove NS records of R53 in Godaddy.com ADD CNAME records
 
 use default ns records of godaddy.com 
 
-DELETE ALL NS records if you have added in the first process for R53 Ns Records
-
-⚠️ No NS records needed at all.
+No NS records needed at all.
 ```
 
-## Step 2: Create CNAME records in godaddy.com for https purpose 
+## Step 2: Create CNAME records in godaddy.com for http purpose 
 
-DNS Management → Add Record
+Open:
+
+GoDaddy → My Products → DNS Management
+
+**Create CNAME records:**
+```shell
+Type	   Name	   Value
+CNAME	   vote	    ALB DNS Name
+CNAME	    result	 ALB DNS Name
+```
+## Step 6: Check DNS propagation:
+ehmutyam.xyz in my domain name replace with your domain name
 
 ```shell
-type: CNAME       Name: cart          Data Value: alb DNS name 
-
-type: CNAME       Name: product       Data Value: alb DNS name 
-
-type: CNAME       Name: payments      Data Value: alb DNS name 
+nslookup vote.ehmutyam.xyz
+nslookup vote.ehmutyam.xyz 8.8.8.8
+dig vote.ehmutyam.xyz
+curl -H "Host: vote.ehmutyam.xyz" http://k8s-votingapp-015023cb5f-1200792225.us-east-1.elb.amazonaws.com
+curl -H "Host: result.ehmutyam.xyz" http://k8s-votingapp-015023cb5f-1200792225.us-east-1.elb.amazonaws.com
 ```
-Example:
-
-k8s-ecommerc-xxxxx.us-east-1.elb.amazonaws.com
 
 
+## Step 7: Access Application in Browser
 
+Once DNS propagation completes:
+
+http://vote.yourdomain.com
+http://result.yourdomain.com
+
+## Step 8: Process of Deletion
+**delete load balancer from baston server** gitbash first
+```shell
+kubectl delete -f hostbased-ingress.yaml
+```
+run this command in vs code gitbash
+
+**Destroy Infrastructure (Cleanup)**
+```shell
+terraform destroy -var-file="dev.tfvars"
+```
 
 A simple distributed application running across multiple Docker containers.
 
