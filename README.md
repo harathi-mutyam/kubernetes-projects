@@ -49,8 +49,9 @@ NAT Gateway
 NGINX Ingress Controller
 ```
 ## 3. eks-acm-alb-production-cluster
+### Production-Grade AWS EKS Deployment with ALB, TLS & Route53 path and host based (Terraform Automated)
 ```shell
-Production-Grade AWS EKS Deployment with ALB, TLS & Route53 path and host based (Terraform Automated)
+
 1. AWS Load Balancer Controller (ALB)
 2. HTTPS using AWS Certificate Manager (ACM)
 3. Path-Based Routing
