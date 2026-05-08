@@ -358,10 +358,16 @@ select your ALB DNS here (for example: k8s-votingapp-xxxxxxxx.us-east-1.elb.amaz
 
 
 ```
-**Check it in browser :** with host names
+**Check it in browser :** with host names To get output it will take some time 
 
-http://vote.ehmutyam.xyz → 
-http://result.ehmutyam.xyz →
+#### DNS propagation usually takes:
+
+#### 5–30 minutes
+#### Sometimes up to 1 hour
+
+http://vote.ehmutyam.xyz 
+
+http://result.ehmutyam.xyz
 
 # PROCEDURE 2 GoDaddy CNAME Method (Without Route 53 Delegation)
 
@@ -404,6 +410,49 @@ curl -H "Host: vote.ehmutyam.xyz" http://k8s-votingapp-015023cb5f-1200792225.us-
 curl -H "Host: result.ehmutyam.xyz" http://k8s-votingapp-015023cb5f-1200792225.us-east-1.elb.amazonaws.com
 ```
 
+# For Debugging purpose use the below commands
+```shell
+#Verify whether votes are being processed correctly by the worker application.
+
+kubectl logs deploy/worker -n voting-app
+
+# Verify PostgreSQL Database Connectivity
+# List PostgreSQL databases:
+
+kubectl exec -it deploy/db -n voting-app -- psql -U postgres -c "\l"
+
+#Login into PostgreSQL shell:
+
+kubectl exec -it deploy/db -n voting-app -- psql -U postgres
+
+#Follow live logs:
+
+kubectl logs deploy/worker -n voting-app -f
+
+output will be Processing vote for 'a' by 'f5dff6e94e55cd0'
+
+press ctrl + c
+
+#Verify Votes Table Data
+#Display all votes stored in PostgreSQL:
+
+kubectl exec -it deploy/db -n voting-app -- psql -U postgres -d postgres -c "select * from votes;"
+
+#Count total votes:
+
+kubectl exec -it deploy/db -n voting-app -- psql -U postgres -c "select count(*) from votes;"
+
+kubectl exec -it deploy/db -n voting-app -- psql -U postgres -d postgres -c "select * from votes;"
+#T est Voting and Result Applications
+
+ curl result.ehmutyam.xyz
+ 
+ curl vote.ehmutyam.xyz
+
+#Test ALB Host-Based Routing .Verify ALB ingress host routing manually:
+ 
+curl -H "Host: vote.ehmutyam.xyz" http://k8s-votingapp-015023cb5f-1200792225.us-east-1.elb.amazonaws.com
+```
 
 ## Step 7: Access Application in Browser
 
