@@ -270,14 +270,18 @@ kubectl apply -f .
 
 ```shell
 kubectl get ingress
+
 NAME           CLASS   HOSTS                   ADDRESS   PORTS
 vpro-ingress   nginx   vprofile.ehmutyam.xyz  <pending>
+
 ```
 wait 3–5 mins to update the address .ADDRESS → AWS NLB DNS
 ```shell
 kubectl get ingress
+
 NAME           CLASS   HOSTS                   ADDRESS                                                                         PORTS   AGE
 vpro-ingress   nginx   vprofile.ehmutyam.xyz   a5463fd475a8a449eb4b4efe54f62e61-680ccb73d736915e.elb.us-east-1.amazonaws.com   80      7m47s
+
 ```
 #### Verify DNS and Access using these commands
 
