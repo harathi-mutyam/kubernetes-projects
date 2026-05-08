@@ -188,7 +188,7 @@ kubectl create namespace voting-app
 
 ls
 ```
-**open  alb-ingress.yaml file replace host: vote.yourdomain.com** 
+### Step 2: open  alb-ingress.yaml file replace host: vote.yourdomain.com
 ```shell
 vim alb-ingress.yaml
 
