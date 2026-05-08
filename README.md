@@ -20,9 +20,9 @@ kubectl
 NGINX Ingress
 ```
 ## 2. AWS EKS Deployment with Terraform & NGINX Ingress
-```shell
 Production-grade Amazon EKS deployment using Terraform and Kubernetes manifests.
 
+```shell
 Features
 Private Amazon EKS cluster
 Terraform Infrastructure as Code
