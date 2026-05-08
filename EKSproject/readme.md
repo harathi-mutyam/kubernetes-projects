@@ -178,7 +178,7 @@ After Terraform completes:
 From your laptop terminal:
 
 ```shell
-ssh -i Downloads/kopskey.pem ubuntu@PUBLIC-IP
+ssh -i Downloads/ec2_keypair.pem ubuntu@PUBLIC-IP
 ```
 🚀 PHASE 3 — INSTALL REQUIRED TOOLS
 ## Step 2: Install AWS CLI
