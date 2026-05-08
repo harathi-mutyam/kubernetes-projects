@@ -16,7 +16,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: vprofile.ehmutyam.xyz   #replace with your project.domainname.com
+  - host: kopsvprofile.ehmutyam.xyz   #replace with your project.domainname.com
     http:
       paths:
       - path: /
