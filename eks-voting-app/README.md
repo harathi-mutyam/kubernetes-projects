@@ -356,25 +356,22 @@ select region of your ALB : US East(N. Virginia)
 
 select your ALB DNS here (for example: k8s-votingapp-xxxxxxxx.us-east-1.elb.amazonaws.com)
 
-**Check it in browser :** with host names
+
 ```
+**Check it in browser :** with host names
 
 http://vote.ehmutyam.xyz → 
 http://result.ehmutyam.xyz →
 
-# PROCEDURE 2 (GoDaddy CNAME Method)
+# PROCEDURE 2 GoDaddy CNAME Method (Without Route 53 Delegation)
 
-Use this ONLY if you are NOT using Route 53 NS delegation. 
+## Step 1: Use GoDaddy Default Nameservers
 
-## Step 1: Remove Route 53 NS Setup
+If you previously added Route 53 NS records in GoDaddy, remove them and switch back to GoDaddy default nameservers.
 
-```shell
-Remove NS records of R53 in Godaddy.com ADD CNAME records
+This step is optional if your domain is already using GoDaddy DNS management.
 
-use default ns records of godaddy.com 
-
-No NS records needed at all.
-```
+You do NOT need Route 53 hosted zone delegation for this method.
 
 ## Step 2: Create CNAME records in godaddy.com for http purpose 
 
@@ -388,6 +385,14 @@ Type	   Name	   Value
 CNAME	   vote	    ALB DNS Name
 CNAME	    result	 ALB DNS Name
 ```
+```shell
+Example:
+
+Type	Name	Value
+CNAME	vote	k8s-votingapp-xxxx.us-east-1.elb.amazonaws.com
+CNAME	result	k8s-votingapp-xxxx.us-east-1.elb.amazonaws.com
+```
+
 ## Step 6: Check DNS propagation:
 ehmutyam.xyz in my domain name replace with your domain name
 
