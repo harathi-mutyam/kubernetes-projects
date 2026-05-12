@@ -25,7 +25,10 @@ Kubernetes Services
   ↓
 Pods (App, DB, Cache, RabbitMQ)
 ```
-
+<p>
+  <img src="images/77e1ac52-f2bc-418a-9177-ed316a0bec61.png">
+   <img src="images/ChatGPT Image May 12, 2026, 11_11_53 AM.png">
+</p>
 The entire infrastructure layer is automated using Terraform.
 
 ## 3.AWS Infrastructure (Terraform)
